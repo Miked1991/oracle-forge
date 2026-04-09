@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-04-09T21:31:37.037828",
+  "model": "llama-3.3-70b-versatile",
+  "passed": 5,
+  "failed": 9,
+  "success_rate": 0.35714285714285715,
+  "failed_tests": [
+    {
+      "doc_path": "kb/domain/join_keys.md",
+      "question": "How is CustomerID formatted in Yelp PostgreSQL versus MongoDB?",
+      "expected": "integer in PostgreSQL",
+      "answer_preview": "In Yelp Dataset, customer_id is an integer in both PostgreSQL and MongoDB, with a consistent format."
+    },
+    {
+      "doc_path": "kb/domain/join_keys.md",
+      "question": "How do you detect a prefix mismatch between databases?",
+      "expected": "prefix",
+      "answer_preview": "Information not found in document."
+    },
+    {
+      "doc_path": "kb/domain/terms.md",
+      "question": "What does 'active customer' mean in the DAB datasets?",
+      "expected": "90 days",
+      "answer_preview": "Information not found in document."
+    },
+    {
+      "doc_path": "kb/domain/terms.md",
+      "question": "When does the fiscal year start according to the KB?",
+      "expected": "July 1",
+      "answer_preview": "Information not found in document."
+    },
+    {
+      "doc_path": "kb/domain/terms.md",
+      "question": "What does 'churn' mean?",
+      "expected": "previous period",
+      "answer_preview": "Information not found in document."
+    },
+    {
+      "doc_path": "kb/domain/terms.md",
+      "question": "What does GMV stand for?",
+      "expected": "Gross Merchandise Value",
+      "answer_preview": "Information not found in document."
+    },
+    {
+      "doc_path": "kb/domain/terms.md",
+      "question": "What is the formula for Repeat Purchase Rate?",
+      "expected": "Customers with",
+      "answer_preview": "Information not found in document."
+    },
+    {
+      "doc_path": "kb/evaluation/dab_format.md",
+      "question": "What is the pass@1 metric?",
+      "expected": "first trial",
+      "answer_preview": "Information not found in document."
+    },
+    {
+      "doc_path": "kb/evaluation/dab_format.md",
+      "question": "How many trials are recommended per query?",
+      "expected": "5",
+      "answer_preview": "Information not found in document."
+    }
+  ]
+}
