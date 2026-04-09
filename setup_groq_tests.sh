@@ -35,7 +35,7 @@ fi
 
 echo ""
 echo "Setup complete! Run tests with:"
-echo "  python3 kb/injection_test_groq.py --mock     # Mock mode (no API key)"
-echo "  python3 kb/injection_test_groq.py            # Real Groq Llama"
-echo "  python3 kb/injection_test_groq.py --verbose  # Verbose output"
-echo "  python3 kb/injection_test_groq.py --model llama3-8b-8192  # Faster model"
+echo "  python3 kb/injection_test.py --mock     # Mock mode (no API key)"
+echo "  python3 kb/injection_test.py            # Real Groq Llama"
+echo "  python3 kb/injection_test.py --verbose  # Verbose output"
+echo "  python3 kb/injection_test.py --model llama-3.3-70b-versatile   
