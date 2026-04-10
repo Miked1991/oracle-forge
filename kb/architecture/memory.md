@@ -26,16 +26,16 @@
 
 **Session start (always load):**
 
-1. Load MEMORY.md (points to kb/v1-architecture/*and kb/v2-domain/*)
-2. Load kb/v2-domain/joins/join_key_mappings.md
-3. Load kb/v3-corrections/failure_log.md
+1. Load MEMORY.md (points to kb/architecture/*and kb/domain/*)
+2. Load kb/domain/joins/join_key_mappings.md
+3. Load kb/corrections/failure_log.md
 
 **On query requiring specific DB:**
-4. Load kb/v2-domain/databases/[db_type]_schemas.md
+4. Load kb/domain/databases/[db_type]_schemas.md
 
 **On join failure:**
-5. Load kb/v2-domain/joins/cross_db_join_patterns.md
-6. Search kb/v3-corrections/failure_by_category.md
+5. Load kb/domain/joins/cross_db_join_patterns.md
+6. Search kb/corrections/failure_by_category.md
 
 ## Critical Rules
 
