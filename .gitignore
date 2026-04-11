@@ -2,3 +2,7 @@
 *.env
 __pycache__/
 *.pyc
+
+# Signal Corps drafts and strategy (local only)
+signal/drafts/
+signal/daily/
