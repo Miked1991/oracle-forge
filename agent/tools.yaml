@@ -1,0 +1,101 @@
+server:
+  host: 0.0.0.0
+  port: 5000
+  log_level: info
+
+connections:
+  - id: postgres_primary
+    type: postgresql
+    priority: 1
+    dsn: ${POSTGRES_DSN}
+    description: Primary relational warehouse. Use for authoritative SQL joins and base entity retrieval.
+    schema_discovery:
+      enabled: true
+      include_types: true
+
+  - id: mongodb_primary
+    type: mongodb
+    priority: 2
+    uri: ${MONGODB_URI}
+    database: ${MONGODB_DATABASE}
+    description: Document store. Use only MongoDB aggregation pipelines for nested documents and text-heavy fields.
+    schema_discovery:
+      enabled: true
+      mode: sample_based
+
+  - id: sqlite_analytics
+    type: sqlite
+    priority: 3
+    path: ${SQLITE_PATH}
+    description: Lightweight SQL source for local transactional snapshots.
+    schema_discovery:
+      enabled: true
+
+  - id: duckdb_analytics
+    type: duckdb
+    priority: 4
+    path: ${DUCKDB_PATH}
+    description: Analytical SQL engine for aggregate and window-heavy workloads.
+    schema_discovery:
+      enabled: true
+
+tools:
+  - name: postgres_sql_query
+    connection: postgres_primary
+    operation: query
+    query_language: sql
+    description: Execute SQL on PostgreSQL. Use for relational joins, filters, and canonical table reads.
+    constraints:
+      - SQL only; no MongoDB pipeline syntax.
+      - Prefer for primary joins and cross-source anchor keys.
+
+  - name: postgres_schema_discovery
+    connection: postgres_primary
+    operation: introspect
+    query_language: sql
+    description: Discover PostgreSQL tables, fields, and data types.
+
+  - name: mongodb_aggregate_query
+    connection: mongodb_primary
+    operation: aggregate
+    query_language: mongodb_aggregation
+    description: Execute MongoDB aggregation pipelines on collections and nested fields.
+    constraints:
+      - Aggregation pipeline only.
+      - No SQL syntax accepted.
+
+  - name: mongodb_schema_discovery
+    connection: mongodb_primary
+    operation: introspect
+    query_language: mongodb_aggregation
+    description: Discover MongoDB collections, sampled fields, and inferred data types.
+
+  - name: sqlite_sql_query
+    connection: sqlite_analytics
+    operation: query
+    query_language: sql
+    description: Execute SQL against SQLite snapshots.
+    constraints:
+      - SQL only.
+      - Suitable for compact local datasets and transaction logs.
+
+  - name: sqlite_schema_discovery
+    connection: sqlite_analytics
+    operation: introspect
+    query_language: sql
+    description: Discover SQLite tables, columns, and types.
+
+  - name: duckdb_sql_query
+    connection: duckdb_analytics
+    operation: query
+    query_language: sql
+    description: Execute SQL against DuckDB for analytical aggregates and window functions.
+    constraints:
+      - SQL only.
+      - Prefer for large aggregation workloads.
+
+  - name: duckdb_schema_discovery
+    connection: duckdb_analytics
+    operation: introspect
+    query_language: sql
+    description: Discover DuckDB tables, fields, and data types.
