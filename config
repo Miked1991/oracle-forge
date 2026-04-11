@@ -1,0 +1,4 @@
+Host trp-llama
+    HostName llama.10academy.org
+    User mikias
+    IdentityFile ~/.ssh/id_ed25519 

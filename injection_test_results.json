@@ -1,0 +1,284 @@
+{
+  "total": 21,
+  "passed": 21,
+  "failed": 0,
+  "errors": 0,
+  "pass_rate": 1.0,
+  "results": [
+    {
+      "document": "architecture/memory.md",
+      "passed": true,
+      "llm_answer": "The three layers of Claude Code's memory system are:\n\n1. Layer 1 - MEMORY.md (index)\n2. Layer 2 - Topic Files (on-demand)\n3. Layer 3 - Session Transcripts (searchable)",
+      "error": null,
+      "matched_keywords": [
+        "MEMORY.md",
+        "topic files",
+        "session transcripts"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "architecture/autodream_consolidation.md",
+      "passed": true,
+      "llm_answer": "autoDream runs on Fridays (weekly) or when the correction log exceeds 50 entries. It compresses session transcripts into persistent memory without losing signal, and its output is written to resolved_patterns.md.",
+      "error": null,
+      "matched_keywords": [
+        "Fridays",
+        "compresses",
+        "session transcripts",
+        "resolved_patterns"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "architecture/tool_scoping_philosophy.md",
+      "passed": true,
+      "llm_answer": "Narrow tools enforce precise DB-specific capability boundaries. A generic \"query_database\" tool can't handle MongoDB aggregation pipelines vs SQL vs DuckDB analytical optimizations.",
+      "error": null,
+      "matched_keywords": [
+        "narrow",
+        "precise",
+        "DB-specific",
+        "boundaries"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "architecture/openai_layers.md",
+      "passed": true,
+      "llm_answer": "The minimum three context layers for Oracle Forge are: \n1. Schema (Layer A)\n2. Institutional (Layer B)\n3. Correction log (Layer C)",
+      "error": null,
+      "matched_keywords": [
+        "Schema",
+        "institutional",
+        "correction log"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "architecture/conductor_worker_pattern.md",
+      "passed": true,
+      "llm_answer": "The Conductor spawns database-specific workers (one per DB), then merges results from all workers into a unified response.",
+      "error": null,
+      "matched_keywords": [
+        "Conductor",
+        "spawns",
+        "workers",
+        "merges"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "architecture/evaluation_harness_schema.md",
+      "passed": true,
+      "llm_answer": "pass@1 is calculated as (correct first answers) / (total queries). The document also mentions that there should be a minimum of 50 trials per query.",
+      "error": null,
+      "matched_keywords": [
+        "correct first answers",
+        "total queries",
+        "50 trials"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/databases/postgresql_schemas.md",
+      "passed": true,
+      "llm_answer": "The format of Yelp business_id is \"abc123def456\" (TEXT).",
+      "error": null,
+      "matched_keywords": [
+        "abc123def456",
+        "TEXT"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/databases/mongodb_schemas.md",
+      "passed": true,
+      "llm_answer": "The format of customer_id in MongoDB telecom collection is \"CUST-1234567\" (STRING with prefix).",
+      "error": null,
+      "matched_keywords": [
+        "CUST-",
+        "STRING",
+        "prefix"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/databases/sqlite_schemas.md",
+      "passed": true,
+      "llm_answer": "INTEGER, no prefix.",
+      "error": null,
+      "matched_keywords": [
+        "INTEGER",
+        "no prefix"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/databases/duckdb_schemas.md",
+      "passed": true,
+      "llm_answer": "DuckDB is used for analytical queries that aggregate across large datasets.",
+      "error": null,
+      "matched_keywords": [
+        "analytical",
+        "aggregate",
+        "large datasets"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/joins/join_key_mappings.md",
+      "passed": true,
+      "llm_answer": "To join PostgreSQL subscriber_id to MongoDB, use the `resolve_join_key` function to apply the transformation `f\"CUST-{subscriber_id}\"`. This will convert the integer subscriber_id in PostgreSQL to a string in the format \"CUST-1234567\" that matches the MongoDB format.",
+      "error": null,
+      "matched_keywords": [
+        "resolve_join_key",
+        "CUST-",
+        "transformation"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/joins/cross_db_join_patterns.md",
+      "passed": true,
+      "llm_answer": "The steps for PostgreSQL to MongoDB join are:\n1. Query PostgreSQL for customer_ids\n2. Transform each ID: f\"CUST-{customer_id}\"\n3. Query MongoDB with transformed IDs\n4. Merge results on transformed key",
+      "error": null,
+      "matched_keywords": [
+        "transform",
+        "query Mongo",
+        "merge"
+      ],
+      "missing_keywords": [
+        "Query PG"
+      ],
+      "match_rate": 0.75
+    },
+    {
+      "document": "domain/unstructured/text_extraction_patterns.md",
+      "passed": true,
+      "llm_answer": "Use the `negative_indicators` list with `.lower()` and `any()`. This involves converting the text to lowercase and checking if any of the negative indicators are present in the text. Additionally, the code checks for negation by verifying if 'not ' followed by an indicator is present in the text.",
+      "error": null,
+      "matched_keywords": [
+        "negative_indicators",
+        ".lower()",
+        "any()"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/unstructured/sentiment_mapping.md",
+      "passed": true,
+      "llm_answer": "According to the document, negation affects sentiment classification in the following way: If \"not\" precedes an indicator, the sentiment is flipped. For example, \"not good\" is classified as negative, and \"not bad\" is classified as non-negative.",
+      "error": null,
+      "matched_keywords": [
+        "not good",
+        "negative",
+        "not bad",
+        "non-negative"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "domain/domain_terms/business_glossary.md",
+      "passed": true,
+      "llm_answer": "Purchased in last 90 days AND churn_date IS NULL.",
+      "error": null,
+      "matched_keywords": [
+        "last 90 days",
+        "churn_date IS NULL"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "correction/failure_log.md",
+      "passed": true,
+      "llm_answer": "On Q023, the agent attempted to join PostgreSQL subscriber_id (INT) directly with MongoDB collection (String format \"CUST-{id}\"), which resulted in an INT to String join failure. \nThe correct approach is to use resolve_join_key(subscriber_id, 'postgres', 'mongodb') \u2192 returns 'CUST-{id}'.",
+      "error": null,
+      "matched_keywords": [
+        "INT to String",
+        "resolve_join_key"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "correction/failure_by_category.md",
+      "passed": true,
+      "llm_answer": "DAB's four failure categories are:\n\n1. Category 1: Multi-Database Routing Failure\n2. Category 2: Ill-Formatted Join Key Mismatch\n3. Category 3: Unstructured Text Extraction Failure\n4. Category 4: Domain Knowledge Gap",
+      "error": null,
+      "matched_keywords": [
+        "Multi-Database",
+        "Join Key",
+        "Unstructured",
+        "Domain Knowledge"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "correction/resolved_patterns.md",
+      "passed": true,
+      "llm_answer": "The confidence score for the PG-INT to Mongo-String transformation is 14/14 successes.",
+      "error": null,
+      "matched_keywords": [
+        "14/14",
+        "successes"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "correction/regression_prevention.md",
+      "passed": true,
+      "llm_answer": "If regression test fails, the following steps are taken: \n1. Revert the change immediately\n2. Log failure to failure_log.md\n3. Do not deploy until all regression tests pass\n4. Update the file with new failure mode.",
+      "error": null,
+      "matched_keywords": [
+        "Revert",
+        "log failure",
+        "do not deploy"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "evaluation/dab_scoring_method.md",
+      "passed": true,
+      "llm_answer": "pass@1 = (number of correct first answers) / (total queries)",
+      "error": null,
+      "matched_keywords": [
+        "correct first answers",
+        "total queries"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    },
+    {
+      "document": "evaluation/submission_format.md",
+      "passed": true,
+      "llm_answer": "The files required for DAB submission are:\n1. `submission/team_name_results.json` (the results JSON file)\n2. `AGENT.md` (architecture description)",
+      "error": null,
+      "matched_keywords": [
+        "results JSON",
+        "AGENT.md"
+      ],
+      "missing_keywords": [],
+      "match_rate": 1.0
+    }
+  ],
+  "timestamp": "2026-04-10T23:17:54.824485",
+  "model": "llama-3.3-70b-versatile"
+}
