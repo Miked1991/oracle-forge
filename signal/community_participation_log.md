@@ -56,7 +56,7 @@ _Each entry names the specific technical focus and intelligence gathered._
 |----------|----------|-----------------|----------------------|------|
 | Community Participation | Reddit | Multi-DB, Evaluation | Posted to r/learnmachinelearning: DAB failure modes discussion. Summarized 4 failure categories, 38% ceiling, and injection-tested KB approach. (r/MachineLearning blocked posting -- karma/age requirement.) | [reddit](https://www.reddit.com/r/learnmachinelearning/comments/1sieo3g/dataagentbench_shows_the_best_frontier_model_hits/) |
 | Community Participation | Reddit | Architecture, Evaluation | Posted to r/LocalLLaMA: injection testing methodology with Groq Llama, 21/21 pass rate, practical observations on document length and format. | [reddit](https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/i_kept_running_into_cases_where_retrieval_was/) |
-| Community Reply | Reddit | Architecture | Reply to u/matt-k-wong on r/LocalLLaMA: clarified model is Llama 3.3 70B via Groq (not a small model). Explained that structured docs (tables, code examples) outperform prose even at 70B params -- same info as prose failed injection test, rewritten as table with CUST-{padded_int} code example passed immediately. Invited comparison at different param counts. | [thread](https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/i_kept_running_into_cases_where_retrieval_was/) |
+| Community Reply | Reddit | Architecture | Second reply from u/matt-k-wong: verified that "longer docs = lower quality" is a universal property. Linked our approach to Karpathy's viral "LLM wiki" topic (info density > raw context). Community validation of structured-doc methodology for high-density knowledge injection. | [thread](https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/i_kept_running_into_cases_where_retrieval_was/) |
 | Technical Deep-Dive | Internal | Architecture | Cloned repo, reviewed develop branch. Mapped full KB structure: 6 architecture + 9 domain + 4 correction + 3 evaluation docs. Verified 21/21 injection test results. | local |
 | Resource Acquisition | Internal | -- | Created signal/ directory infrastructure: engagement_log.md, community_participation_log.md, resource_acquisition.md. Branch: feat/signal-corps-engagement. | local |
 | Community Participation | X | -- | Curated 4 high-engagement accounts for reply-threading strategy: @shipp_ai, @_avichawla, @himanshustwts, @sh_reya. Identified Karpathy LLM wiki gist as content anchor. | -- |
@@ -64,22 +64,55 @@ _Each entry names the specific technical focus and intelligence gathered._
 
 ---
 
+## 2026-04-12 (Day 6 — Ethiopian Holiday, Rest Day)
+
+| Category | Platform | Technical Focus | Intelligence / Action | Link |
+|----------|----------|-----------------|----------------------|------|
+| Technical Deep-Dive | Internal | Architecture | Mikias rebuilt KB injection test harness (kb/INJECTION_TEST_LOG.md committed). 13 iteration runs to converge at 21/21 (100%) on llama-3.1-8b-instant — confirms doc quality is model-size-agnostic when structure is right. | `2843265` |
+
+---
+
+## 2026-04-13 (Day 7 — Construction → Integration)
+
+| Category | Platform | Technical Focus | Intelligence / Action | Link |
+|----------|----------|-----------------|----------------------|------|
+| Technical Deep-Dive | Internal | Architecture | Eyor merged develop ↔ feat/agent: agent pipeline + KB + 21/21 injection tests on one branch. Full integration verified. | `d5cd573` |
+| Technical Deep-Dive | Internal | Multi-DB, Join Keys, Unstructured Text, Domain Knowledge | Mikias + Gashaw pushed probes (19, all 4 DAB categories), utilities (6 modules), tests (join_keys + routing), and new KB docs (authoritative_tables, fiscal_calendar, null_guards). Interim spec compliance: ✅ 19 probes (>15), ✅ 4 categories (>3), ✅ 6 utilities (>3). | `ad68f9a` |
+| Resource Acquisition | DAB official channels | All | Confirmed via GitHub repo + leaderboard site that no official DAB Discord exists. UC Berkeley EPIC + Hasura PromptQL route community through GitHub issues only. | https://github.com/ucbepic/DataAgentBench |
+| Community Participation | Cohort class group | All | First-mover help: peer asked for DAB Discord link, confirmed it doesn't exist, surfaced 3 verified alternative Discord invites (HF, EleutherAI, LlamaIndex) per Practitioner Manual guidance. | -- |
+| Community Participation | Discord (Hugging Face) | All | Joined server. Substantive engagement deploying Apr 14-16. | https://discord.gg/JfAtkvEtRb |
+| Community Participation | Discord (EleutherAI) | All | Joined server. Substantive engagement deploying Apr 14-16. | https://discord.gg/zBGx3azzUn |
+| Community Participation | Discord (LlamaIndex) | All | Joined server. Substantive engagement deploying Apr 14-16. | https://discord.com/invite/eN6D2HQ4aX |
+| Community Participation | X (Twitter) | Domain Knowledge | Reply-threaded Tweet 2 (Domain Knowledge Trap, churn rate definition) under @ashpreetbedi's Dash v2 thread (text-to-SQL agent context kit). 3 placement variants. | https://x.com/kirubeltewodro2/status/2043614126912500174 |
+| Community Participation | X (Twitter) | Unstructured Text | Reply-threaded Tweet 5 (Negation Problem) on NLP/sentiment threads, including one under @0xcgn. 2 placement variants. | https://x.com/kirubeltewodro2/status/2043616814421180639 |
+| Technical Deep-Dive | X (Twitter) | Domain Knowledge | **External validation received.** @matanzutta replied to Kirubel's Dash v2 reply: "the gap between what the schema says and what the business actually means is where most agent queries go wrong" — non-coordinated practitioner restating our thesis verbatim. Highest-signal engagement of the week. | https://x.com/matanzutta/status/2043620994544239077 |
+| Community Participation | r/learnmachinelearning | Join Keys | New post: "Silent cross database join failures: has anyone dealt with int vs prefixed string ID mismatches?" Lead with failure mode (PG int ↔ Mongo "CUST-1234567"), asked community for OSS detection tools. | https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/silent_cross_database_join_failures_has_anyone/ |
+| Technical Deep-Dive | r/LocalLLaMA | Architecture, Domain Knowledge | Follow-up comment on own injection-testing thread: 21/21 pass on llama-3.1-8b-instant (sub-8B), linked INJECTION_TEST_LOG.md on repo for verification. Closes loop on u/matt-k-wong's question about whether the methodology generalizes below 70B. | https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/i_kept_running_into_cases_where_retrieval_was/ |
+| Community Reply | r/learnmachinelearning | Domain Knowledge | u/Far-Comparison-9745 reply on the original DAB failure modes thread asked the right question: how to automate learning domain rules (e.g., "active = last 90 days") never in the schema. Validates need for business_glossary.md + SME capture loop. Response drafted. | https://www.reddit.com/r/learnmachinelearning/comments/1sieo3g/comment/ofwrtgq/ |
+| Resource Acquisition | Internal | -- | Compiled Week 8 Engagement Portfolio (signal/week8_engagement_portfolio.md) for interim PDF inclusion. Drafted X thread 04 (integration milestone) for post-PR launch. | local |
+
+---
+
 ## Summary by Technical Focus
 
 | Focus Area | Total Entries | Platforms |
 |------------|--------------|-----------|
-| Multi-DB | 6 | Internal, X, Reddit, Medium |
-| Join Keys | 5 | Internal, X, Medium |
-| Architecture | 5 | Internal |
+| Multi-DB | 7 | Internal, X, Reddit, Medium |
+| Join Keys | 7 | Internal, X, Reddit, Medium |
+| Architecture | 8 | Internal, Reddit |
 | Evaluation | 4 | Internal, X, Reddit |
-| Unstructured Text | 1 | Internal |
-| Domain Knowledge | 1 | Internal |
 | Team Coordination | 4 | Internal, Google Meet |
 | Silent Failure | 2 | LinkedIn |
+| Unstructured Text | 3 | Internal, X |
+| Domain Knowledge | 5 | Internal, X, Reddit |
 
+## Week 9 Status (as of 2026-04-13)
+- **Discord:** ✅ 3 servers joined (HF, EleutherAI, LlamaIndex). Substantive engagement Apr 14-16.
+- **Reddit replies:** Active — u/matt-k-wong thread continues, u/Far-Comparison-9745 reply received on original post.
+- **X reply-threading:** ✅ 5 placements delivered Apr 13. **External validation received from @matanzutta.**
+- **Unstructured text + Domain knowledge content:** Now well-represented (Tweet 2 + Tweet 5 deployed in real threads, @matanzutta validation on Domain Knowledge specifically).
 
-## Gaps to Address in Week 9
-- **Discord:** Zero engagement. Target: DAB community Discord, Hugging Face
-- **Reddit replies:** First reply engagement on r/LocalLLaMA (u/matt-k-wong). Continue monitoring.
-- **X reply-threading:** Zero replies under larger accounts. Shift from broadcast to reply strategy
-- **Unstructured text + Domain knowledge content:** Underrepresented in external posts. Both are DAB failure categories with rich KB material.
+## Remaining Gaps for Final Submission (Apr 18)
+- **DAB benchmark scores:** Probes designed and runner exists, but real pass/fail scores from end-to-end agent runs still pending.
+- **Discord substantive comments:** Servers joined, first comment in HF/EleutherAI/LlamaIndex deploying Apr 14-16.
+- **Final engagement summary:** Compile reach metrics + notable responses for final PDF.
