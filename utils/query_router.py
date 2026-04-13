@@ -113,6 +113,25 @@ _ROUTING_CATALOGUE: list[tuple[str, DatabaseType, int]] = [
     ("categories",          DatabaseType.DUCKDB,     3),
     ("category",            DatabaseType.DUCKDB,     2),
 
+    # ── compound engine+table tokens (weight 6) ──────────────────────────────
+    # These fire when a query explicitly qualifies a table with its engine name
+    # (e.g. "SQLite `customers` table" or "DuckDB loyalty table").  Weight 6
+    # beats the generic single-token entries below (weight 4) so the correct
+    # engine wins even when a same-named table exists in another engine.
+    # Required fix: M6 probe — "customers" alone scores PostgreSQL +4, but
+    # "sqlite customers" scores SQLite +6, correctly overriding the conflict.
+    ("sqlite customers",    DatabaseType.SQLITE,     6),
+    ("sqlite `customers`",  DatabaseType.SQLITE,     6),
+    ("duckdb loyalty",      DatabaseType.DUCKDB,     6),
+    ("duckdb `loyalty`",    DatabaseType.DUCKDB,     6),
+
+    # ── NPS routing ───────────────────────────────────────────────────────────
+    # nps_scores table lives in SQLite.  "nps score" / "nps" alone are not
+    # substrings of "nps_scores", so add explicit tokens so D5/J2 queries
+    # route to the correct engine without relying on schema-introspector boost.
+    ("nps score",           DatabaseType.SQLITE,     5),
+    ("nps",                 DatabaseType.SQLITE,     3),
+
     # ── explicit engine name keywords ────────────────────────────────────────
     # Queries that explicitly name the engine (e.g. "Join the SQLite customers
     # table with DuckDB loyalty table") must route to the named engines even
@@ -230,6 +249,30 @@ class QueryRouter:
                         pass
             except Exception:
                 pass
+
+        # Named-engine suppression ─────────────────────────────────────────────
+        # When a query explicitly names ≥ 2 engines (e.g. "SQLite … DuckDB …"),
+        # generic table-token matches must not pull in a third, unnamed engine.
+        #
+        # Example: M6 — "Join the SQLite `customers` table with DuckDB `loyalty`"
+        # "customers" → PostgreSQL +4 fires even though PostgreSQL is not involved.
+        # Fix: detect named engines; zero out all non-named engine scores so only
+        # the explicitly mentioned engines participate in routing.
+        _EXPLICIT_ENGINE_MAP: dict[str, DatabaseType] = {
+            "sqlite":     DatabaseType.SQLITE,
+            "duckdb":     DatabaseType.DUCKDB,
+            "postgresql": DatabaseType.POSTGRESQL,
+            "postgres":   DatabaseType.POSTGRESQL,
+            "mongodb":    DatabaseType.MONGODB,
+            "mongo":      DatabaseType.MONGODB,
+        }
+        named_engines = {
+            db for tok, db in _EXPLICIT_ENGINE_MAP.items() if tok in query_lower
+        }
+        if len(named_engines) >= 2:
+            for db in DatabaseType:
+                if db not in named_engines:
+                    scores[db] = 0
 
         # Unstructured text extraction → MongoDB boost
         if any(

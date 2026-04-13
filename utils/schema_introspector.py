@@ -1,7 +1,7 @@
 """Discover and cache schema information from all connected databases."""
 
 import asyncio
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Tuple
 from dataclasses import dataclass, field
 from collections import defaultdict
 
@@ -78,9 +78,9 @@ class SchemaIntrospector:
                     # Get sample values (first 3 rows)
                     sample = await conn.fetch(f"SELECT * FROM {table_name} LIMIT 3")
                     
-                    col_info = {}
+                    col_info: Dict[str, ColumnInfo] = {}
                     for col in columns:
-                        sample_vals = [row[col['column_name']] for row in sample if row[col['column_name']] is not None]
+                        sample_vals: List[Any] = [row[col['column_name']] for row in sample if row[col['column_name']] is not None]
                         col_info[col['column_name']] = ColumnInfo(
                             name=col['column_name'],
                             data_type=col['data_type'],
@@ -170,12 +170,12 @@ class SchemaIntrospector:
                     None, lambda c=collection: list(c.find().limit(3))
                 )
                 row_count = await loop.run_in_executor(
-                    None, collection.count_documents, {}
+                    None, collection.count_documents, dict()
                 )
 
                 if sample:
                     # Infer schema from first document
-                    col_info = {}
+                    col_info: Dict[str, ColumnInfo] = {}
                     for key, value in sample[0].items():
                         if key == '_id':
                             continue
@@ -211,12 +211,12 @@ class SchemaIntrospector:
                 col_names = [desc[0] for desc in sample_rel.description]
                 sample = sample_rel.fetchall()
                 
-                col_info = {}
+                col_info: Dict[str, ColumnInfo] = {}
                 for col in columns:
-                    col_name = col[0]
-                    col_type = col[1]
-                    idx = col_names.index(col_name) if col_name in col_names else -1
-                    sample_vals = [row[idx] for row in sample if idx >= 0 and row[idx] is not None]
+                    col_name: str = col[0]
+                    col_type: str = col[1]
+                    idx: int = col_names.index(col_name) if col_name in col_names else -1
+                    sample_vals: List[Any] = [row[idx] for row in sample if idx >= 0 and row[idx] is not None]
                     
                     col_info[col_name] = ColumnInfo(
                         name=col_name,
@@ -242,38 +242,49 @@ class SchemaIntrospector:
         """
         await self.refresh()
         
-        keywords = set(query.lower().split())
-        relevance = []
-        
-        for db_type, tables in self.schemas.items():
+        query_lower = query.lower()
+        keywords = set(query_lower.split())
+        relevance: List[Tuple[int, TableInfo]] = []
+
+        for _, tables in self.schemas.items():
             for table_name, table_info in tables.items():
                 score = 0
-                # Check table name matches
-                table_words = set(table_name.lower().split('_'))
+                table_lower = table_name.lower()
+
+                # Phrase-level match: query "gene expression" → table gene_expression.
+                # Underscore-separated table names become space-separated phrases so
+                # natural-language queries like "low gene expression for TP53" hit the
+                # gene_expression table even though no single word equals "gene_expression".
+                table_phrase = table_lower.replace('_', ' ')
+                if len(table_phrase) > 3 and table_phrase in query_lower:
+                    score += 4  # phrase match outweighs individual word hits
+
+                # Word-level match: individual underscore-split tokens vs query tokens.
+                table_words = set(table_lower.split('_'))
                 score += len(keywords & table_words) * 2
-                
-                # Check column names
+
+                # Column name match: individual underscore-split tokens vs query tokens.
                 for col_name in table_info.columns.keys():
                     col_words = set(col_name.lower().split('_'))
                     score += len(keywords & col_words)
-                
+
                 if score > 0:
                     relevance.append((score, table_info))
-        
-        relevance.sort(reverse=True)
+
+        relevance.sort(key=lambda t: t[0], reverse=True)
         return [info for _, info in relevance[:top_k]]
-    
+
     def get_all_schemas_as_text(self) -> str:
         """Convert all schemas to text for context injection."""
-        lines = []
-        for db_type, tables in self.schemas.items():
-            lines.append(f"\n## Database: {db_type.upper()}")
+        lines: List[str] = []
+        for db_label, tables in self.schemas.items():
+            lines.append(f"\n## Database: {db_label.upper()}")
             for table_name, table_info in tables.items():
                 lines.append(f"\n### Table: {table_name}")
                 lines.append(f"Columns: {', '.join(table_info.columns.keys())}")
                 for col_name, col_info in list(table_info.columns.items())[:5]:
-                    samples = col_info.sample_values[:2]
+                    samples: List[Any] = col_info.sample_values[:2]
                     sample_str = f" (e.g., {samples})" if samples else ""
                     lines.append(f"  - {col_name}: {col_info.data_type}{sample_str}")
-        
+
         return "\n".join(lines)

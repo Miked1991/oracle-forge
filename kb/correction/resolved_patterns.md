@@ -12,11 +12,23 @@
 **Transformation:**
 
 ```python
+# Tables whose PG integer IDs map to MongoDB "CUST-{id}" string keys.
+# Extended from {subscriber, customer} to cover all known entity-owning tables.
+_CUST_PREFIX_TABLES = frozenset({
+    'subscriber', 'subscribers',
+    'customer', 'customers',
+    'orders', 'order',           # order-level joins where customer_id is the FK
+    'accounts', 'account',
+    'contracts', 'contract',
+    'clients', 'client',
+})
+
 def transform(source_value, source_table, source_db, target_db):
     if source_db == 'postgresql' and target_db == 'mongodb':
-        if 'subscriber' in source_table or 'customer' in source_table:
+        table_lower = source_table.lower()
+        if any(t in table_lower for t in _CUST_PREFIX_TABLES):
             return f"CUST-{source_value}"
-        if 'patient' in source_table:
+        if 'patient' in table_lower:
             return f"PT-{source_value}"
     return source_value
 ```

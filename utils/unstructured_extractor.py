@@ -166,6 +166,20 @@ class UnstructuredExtractor:
             return label_map.get(top, top)
         return None
 
+    def count_wait_complaints(self, texts: List[str]) -> int:
+        """Count reviews that contain a genuine wait-time complaint (U1).
+
+        Uses WAIT_COMPLAINT regex instead of naive '%wait%' to avoid 3-4x
+        over-counting from phrases like 'can't wait', 'wait staff', 'worth the wait'.
+
+        Args:
+            texts: List of review text strings (e.g. MongoDB reviews.text for a year)
+
+        Returns:
+            Integer count of reviews matching the scoped complaint pattern.
+        """
+        return sum(is_wait_complaint(t) for t in texts)
+
     def classify_churn_reasons(self, text: str) -> str:
         """
         Classify churn reason from free text into 'price', 'service', 'competitor', or 'other'.
@@ -202,6 +216,50 @@ NEG_WORDS = re.compile(
     r'|ignored|waiting|waited|avoid|regret|never returning)\b',
     re.I,
 )
+
+# U1 — Yelp wait-time complaint filter.
+#
+# Naive LIKE '%wait%' over-counts by 3-4x because it matches positive phrases
+# ("can't wait to go back", "wait staff was great", "worth the wait").
+# This pattern is scoped to genuine complaint phrases only.
+#
+# Does NOT match:
+#   - "can't wait"          (anticipation)
+#   - "wait staff"          (restaurant staff noun)
+#   - "worth the wait"      (positive payoff)
+#   - "can't wait to ..."   (excitement)
+#
+# Use is_wait_complaint(text) for per-review boolean classification, or
+# UnstructuredExtractor.count_wait_complaints(texts) for bulk counting.
+WAIT_COMPLAINT = re.compile(
+    r'(?:'
+    # "waited too long", "waiting so long", "wait forever"
+    r'wait(?:ed|ing)?\s+(?:(?:too|so|very|extremely|forever)\s+)?long'
+    # "long wait", "long line"
+    r'|long\s+(?:wait|line)'
+    # exact probe phrase — "wait time" in a complaint context
+    r'|wait\s+time'
+    # "slow service", "slow response"
+    r'|slow\s+(?:service|response)'
+    # "spent 30 minutes waiting", "wasted an hour waiting"
+    r'|(?:spent|wasted)\s+\w+\s+(?:min(?:utes?)?|hours?)\s+waiting'
+    # "made us wait", "made me wait"
+    r'|made\s+(?:us|me|everyone)\s+wait'
+    # "forever to be seated", "forever to get a table"
+    r'|forever\s+to\s+(?:be\s+seated|get\s+(?:a\s+)?(?:table|server|food|drink))'
+    r')',
+    re.IGNORECASE,
+)
+
+
+def is_wait_complaint(text: str) -> bool:
+    """Return True if *text* contains a genuine wait-time complaint.
+
+    Uses WAIT_COMPLAINT (scoped phrase regex) instead of naive '%wait%' matching,
+    which over-counts by 3-4x on Yelp data by catching 'can't wait', 'wait staff',
+    and 'worth the wait'.  Required for U1 (Yelp 2024 wait-time negative reviews).
+    """
+    return bool(WAIT_COMPLAINT.search(str(text)))
 
 
 class SentimentClassifier:
