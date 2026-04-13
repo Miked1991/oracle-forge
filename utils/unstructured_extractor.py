@@ -1,7 +1,7 @@
 """Extract structured data from unstructured text fields using regex + LLM fallback."""
 
 import re
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Any, Optional, cast
 from dataclasses import dataclass
 from enum import Enum
 
@@ -37,8 +37,8 @@ class UnstructuredExtractor:
     Uses regex first, falls back to LLM for complex cases.
     """
     
-    def __init__(self, llm_client=None):
-        self.llm_client = llm_client
+    def __init__(self, llm_client: Optional[Any] = None) -> None:
+        self.llm_client: Optional[Any] = llm_client
         
         # Pre-compiled extraction rules
         self.rules = {
@@ -88,33 +88,39 @@ class UnstructuredExtractor:
         Returns:
             List of extracted values (strings, floats, or ints)
         """
-        values = []
-        
+        values: List[Any] = []
+
         # Try regex rules first
         for rule in self.rules.get(extract_type, []):
             pattern = re.compile(rule.pattern, re.IGNORECASE)
-            matches = pattern.findall(text)
+            matches: List[Any] = pattern.findall(text)
             for match in matches:
+                raw: str
                 if isinstance(match, tuple):
-                    val = match[rule.extract_group] if rule.extract_group < len(match) else match[0]
+                    parts: tuple[Any, ...] = cast(tuple[Any, ...], match)
+                    idx = rule.extract_group if rule.extract_group < len(parts) else 0
+                    raw = str(parts[idx])
                 else:
-                    val = match
-                
+                    raw = str(match)
+
                 # Apply post-processing
+                processed: Any
                 if rule.post_process == 'float':
-                    val = float(val)
+                    processed = float(raw)
                 elif rule.post_process == 'int':
-                    val = int(val)
+                    processed = int(raw)
                 elif rule.post_process == 'lower':
-                    val = val.lower()
+                    processed = raw.lower()
                 elif rule.post_process == 'strip':
-                    val = val.strip()
-                
-                values.append(val)
-        
+                    processed = raw.strip()
+                else:
+                    processed = raw
+
+                values.append(processed)
+
         # Deduplicate while preserving order
-        seen = set()
-        unique_values = []
+        seen: set[Any] = set()
+        unique_values: List[Any] = []
         for v in values:
             if v not in seen:
                 seen.add(v)
@@ -126,13 +132,11 @@ class UnstructuredExtractor:
         
         return unique_values
     
-    def _extract_with_llm(self, text: str, extract_type: ExtractionType) -> List[Any]:
-        """Fallback to LLM for complex extraction."""
-        # This would call the LLM with a specific prompt
-        # Simplified for now - in production, implement with Groq
-        prompt = f"Extract all {extract_type.value}s from this text. Return as JSON list: {text}"
-        # response = await self.llm_client.chat(...)
-        return []  # Placeholder
+    def _extract_with_llm(self, _text: str, _extract_type: ExtractionType) -> List[Any]:
+        """Fallback to LLM for complex extraction (stub — implement with Groq in production)."""
+        # prompt = f"Extract all {_extract_type.value}s from this text. Return as JSON list: {_text}"
+        # response = await self.llm_client.chat(prompt)
+        return []
     
     def extract_amounts(self, text: str) -> List[float]:
         """Convenience method for currency amounts."""
@@ -185,10 +189,18 @@ class UnstructuredExtractor:
 
 
 POS_WORDS = re.compile(
-    r'\b(great|excellent|amazing|love|perfect|best|delicious|friendly|clean)\b', re.I
+    r'\b(great|excellent|amazing|love|perfect|best|delicious|friendly|clean'
+    r'|wonderful|fantastic|awesome|superb|brilliant|outstanding|happy|pleased'
+    r'|satisfied|recommend|enjoyed|fresh|tasty|polite|helpful|quick)\b',
+    re.I,
 )
 NEG_WORDS = re.compile(
-    r'\b(terrible|awful|disgusting|rude|worst|horrible|cold|slow|never again)\b', re.I
+    r'\b(terrible|awful|disgusting|rude|worst|horrible|cold|slow|never again'
+    r'|frustrated|angry|broken|failed|failure|error|complaint|unhappy'
+    r'|disappointed|useless|waste|poor|bad|disappointing|unacceptable'
+    r'|overpriced|dirty|rotten|stale|burnt|bland|tasteless|incompetent'
+    r'|ignored|waiting|waited|avoid|regret|never returning)\b',
+    re.I,
 )
 
 

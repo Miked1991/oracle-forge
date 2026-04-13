@@ -24,24 +24,35 @@
 
 ## Detection Logic
 
-When join fails, call `resolve_join_key(value, source_table, target_table)` to detect and fix the mismatch:
+When a join fails, use `JoinKeyResolver` from `utils/join_key_resolver.py` to detect and fix the mismatch:
 
 1. Check if one side is INT, other is STRING with prefix
-2. Extract numeric part: re.search(r'\d+', string_value)
+2. Extract numeric part: `re.sub(r'\D', '', string_value)`
 3. Compare numeric values
 4. Apply correct transformation based on table name
 
 ## Code Implementation
 
 ```python
-def resolve_join_key(value, source_table, target_table):
-    if source_table == 'subscribers' and 'mongo' in target_table:
-        if isinstance(value, int):
-            return f"CUST-{value}"
-    if 'mongo' in source_table and target_table == 'subscribers':
-        if isinstance(value, str) and value.startswith('CUST-'):
-            return int(value.replace('CUST-', ''))
-    return value
+from utils.join_key_resolver import JoinKeyResolver
+
+resolver = JoinKeyResolver()
+
+# PostgreSQL INT → MongoDB STRING (Telecom: subscriber_id → "CUST-{id}")
+def pg_to_mongo_telecom(pg_int_id: int) -> str:
+    return f"CUST-{pg_int_id}"
+
+# PostgreSQL INT → MongoDB STRING (Healthcare: patient_id → "PT-{id}")
+def pg_to_mongo_healthcare(pg_int_id: int) -> str:
+    return f"PT-{pg_int_id}"
+
+# Generic cross-DB key resolution (auto-detects normalization needed)
+pg_key, mongo_key = resolver.resolve_cross_db_join(
+    left_key=subscriber_id,
+    right_key=mongo_ref,
+    left_db_type='postgresql',
+    right_db_type='mongodb'
+)
 
 def transform_yelp_user_id(user_id: str) -> str:
     """Idempotent: safe to call even if already in USER- format."""
@@ -69,7 +80,7 @@ resolved = resolver.resolve_tcga_id(duckdb_id)  # → "ab1234"
 
 `business_id` between DuckDB and MongoDB is a direct 22-character alphanumeric string. No normalization needed.
 
-```
+```text
 DuckDB business.business_id:    "abc123def456xyz789ab12"  (TEXT)
 MongoDB reviews.business_id:    "abc123def456xyz789ab12"  (STRING)
 Transformation: direct equality
@@ -78,4 +89,4 @@ Transformation: direct equality
 ## Injection Test
 
 Q: How do I join PostgreSQL subscriber_id to MongoDB?
-A: Use resolve_join_key to apply the transformation f"CUST-{subscriber_id}" when joining PostgreSQL subscriber_id to MongoDB.
+A: Use JoinKeyResolver().resolve_cross_db_join() from utils/join_key_resolver.py. For Telecom apply f"CUST-{subscriber_id}" to convert the PostgreSQL INT to the MongoDB STRING format.

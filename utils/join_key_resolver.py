@@ -1,7 +1,7 @@
 """Resolve ill-formatted join keys across different database systems."""
 
 import re
-from typing import Any, Union, Dict, Callable, Optional, List
+from typing import Any, Dict, Callable, Optional, List
 from functools import lru_cache
 
 class JoinKeyResolver:
@@ -102,11 +102,16 @@ class JoinKeyResolver:
         s = re.sub(r'[_-]', '', s)
         return s
     
+    @staticmethod
     @lru_cache(maxsize=1000)
-    def can_join(self, key1: str, key2: str) -> bool:
-        """Check if two keys can be joined after normalization."""
-        norm1 = self._normalize_default(key1)
-        norm2 = self._normalize_default(key2)
+    def can_join(key1: str, key2: str) -> bool:
+        """Check if two keys can be joined after normalization.
+
+        Static + lru_cache avoids the instance-method memory-leak where
+        `self` would be kept alive indefinitely as a cache key.
+        """
+        norm1 = re.sub(r'[_-]', '', key1.lower().strip())
+        norm2 = re.sub(r'[_-]', '', key2.lower().strip())
         return norm1 == norm2
     
     def resolve_cross_db_join(

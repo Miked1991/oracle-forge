@@ -33,8 +33,8 @@ class SchemaIntrospector:
     - Change detection for schema evolution
     """
     
-    def __init__(self, db_executor):
-        self.db = db_executor
+    def __init__(self, db_executor: Any) -> None:
+        self.db: Any = db_executor
         self.schemas: Dict[str, Dict[str, TableInfo]] = defaultdict(dict)  # db_type -> table_name -> TableInfo
         self._cache_ttl = 300  # 5 minutes
         self._last_refresh = 0
@@ -99,44 +99,59 @@ class SchemaIntrospector:
             print(f"PostgreSQL introspection failed: {e}")
     
     async def _introspect_sqlite(self) -> None:
-        """Introspect SQLite schema."""
+        """Introspect SQLite schema (sync DB calls offloaded to executor).
+
+        SQLite's sqlite3 module is synchronous.  Running it directly inside an
+        async method blocks the event loop for the entire introspection duration.
+        Offloading to run_in_executor keeps the loop responsive while the
+        blocking I/O completes in a thread-pool worker.
+        """
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, self._introspect_sqlite_sync)
+
+    def _introspect_sqlite_sync(self) -> None:
+        """Blocking SQLite introspection — called via run_in_executor."""
         try:
-            cursor = self.db.sqlite_conn.execute("""
-                SELECT name FROM sqlite_master WHERE type='table'
-            """)
+            conn: Any = self.db.sqlite_conn
+            cursor = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'"
+            )
             tables = cursor.fetchall()
-            
+
             for (table_name,) in tables:
-                # Get column info
-                cursor = self.db.sqlite_conn.execute(f"PRAGMA table_info({table_name})")
+                cursor = conn.execute(f"PRAGMA table_info({table_name})")
                 columns = cursor.fetchall()
-                
-                # Get sample
-                cursor = self.db.sqlite_conn.execute(f"SELECT * FROM {table_name} LIMIT 3")
+
+                cursor = conn.execute(f"SELECT * FROM {table_name} LIMIT 3")
                 sample = cursor.fetchall()
-                col_names = [desc[0] for desc in cursor.description] if cursor.description else []
-                
-                col_info = {}
+                col_names: List[str] = (
+                    [desc[0] for desc in cursor.description]
+                    if cursor.description else []
+                )
+
+                col_info: Dict[str, ColumnInfo] = {}
                 for col in columns:
-                    col_name = col[1]
-                    col_type = col[2]
+                    col_name: str = col[1]
+                    col_type: str = col[2]
                     idx = col_names.index(col_name) if col_name in col_names else -1
-                    sample_vals = [row[idx] for row in sample if idx >= 0 and row[idx] is not None]
-                    
+                    sample_vals: List[Any] = [
+                        row[idx] for row in sample
+                        if idx >= 0 and row[idx] is not None
+                    ]
                     col_info[col_name] = ColumnInfo(
                         name=col_name,
                         data_type=col_type,
                         nullable=col[3] == 0,
-                        sample_values=sample_vals[:2]
+                        sample_values=sample_vals[:2],
                     )
-                
-                count_cursor = self.db.sqlite_conn.execute(f"SELECT COUNT(*) FROM {table_name}")
-                row_count = count_cursor.fetchone()[0]
+
+                count_cursor = conn.execute(f"SELECT COUNT(*) FROM {table_name}")
+                row_count: int = count_cursor.fetchone()[0]
                 self.schemas['sqlite'][table_name] = TableInfo(
                     name=table_name,
                     database='sqlite',
                     columns=col_info,
-                    row_count=row_count
+                    row_count=row_count,
                 )
         except Exception as e:
             print(f"SQLite introspection failed: {e}")
@@ -144,7 +159,7 @@ class SchemaIntrospector:
     async def _introspect_mongodb(self) -> None:
         """Introspect MongoDB collections (PyMongo sync calls offloaded to executor)."""
         try:
-            loop = asyncio.get_event_loop()
+            loop = asyncio.get_running_loop()
             db = self.db.mongo_client.get_database('dab')
 
             collections = await loop.run_in_executor(None, db.list_collection_names)

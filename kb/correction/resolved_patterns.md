@@ -78,16 +78,30 @@ Steps:
 **Confidence:** 1/1 successes
 **Apply when:** batch size > 10 queries OR concurrent workers > 10
 **Rule:** max 10 concurrent workers, 30-second timeout per query
+
+Use the `asyncio` pattern — the codebase is fully async (`rate_limiter.py`,
+`schema_introspector.py`, `test_probes.py` all use `asyncio.gather`).
+`ThreadPoolExecutor` creates a sync/async boundary that raises
+`RuntimeError: This event loop is already running` under the existing event loop.
+
 **Implementation:**
 
 ```python
+import asyncio
+
 MAX_CONCURRENT_WORKERS = 10
 QUERY_TIMEOUT_SECONDS = 30
 
-with ThreadPoolExecutor(max_workers=MAX_CONCURRENT_WORKERS) as executor:
-    futures = {executor.submit(run_query, q): q for q in query_batch}
-    for future in as_completed(futures, timeout=QUERY_TIMEOUT_SECONDS):
-        results.append(future.result())
+async def run_all_queries(query_batch):
+    semaphore = asyncio.Semaphore(MAX_CONCURRENT_WORKERS)
+
+    async def _run(query):
+        async with semaphore:
+            return await asyncio.wait_for(
+                run_query(query), timeout=QUERY_TIMEOUT_SECONDS
+            )
+
+    return await asyncio.gather(*[_run(q) for q in query_batch])
 ```
 
 ## Instructions for Agent

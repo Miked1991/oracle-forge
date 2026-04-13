@@ -2,8 +2,7 @@
 
 import asyncio
 import time
-from typing import Optional
-from collections import deque
+from typing import Any, Dict, Optional
 
 class AsyncRateLimiter:
     """
@@ -38,50 +37,56 @@ class AsyncRateLimiter:
 
         Returns:
             Wait time in seconds (0 if no wait)
+
+        Race-condition fix
+        ------------------
+        The original two-lock pattern had a bug: multiple coroutines that all
+        found an empty bucket would each sleep independently, then all proceed
+        in their second lock acquisition *without* consuming a token.  Under
+        concurrent probe runs this effectively disabled rate limiting.
+
+        The fix uses a single re-entrant check: after sleeping, re-enter the
+        lock and subtract a token (refilled by elapsed time).  If the bucket
+        is still empty (another waiter drained it first), sleep again.  This
+        loop ensures exactly one token is consumed per successful acquire.
         """
-        async with self._lock:
-            self.queue_length += 1
-            now = time.monotonic()
+        self.queue_length += 1
+        total_wait = 0.0
 
-            # Add tokens based on time elapsed
-            elapsed = now - self.last_update
-            self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
-            self.last_update = now
+        while True:
+            async with self._lock:
+                now = time.monotonic()
+                elapsed = now - self.last_update
+                self.tokens = min(self.capacity, self.tokens + elapsed * self.rate)
+                self.last_update = now
 
-            if self.tokens >= 1:
-                self.tokens -= 1
-                self.queue_length -= 1
-                self.total_requests += 1
-                return 0.0
+                if self.tokens >= 1:
+                    self.tokens -= 1
+                    self.queue_length -= 1
+                    self.total_requests += 1
+                    self.total_wait_time += total_wait
+                    return total_wait
 
-            # Calculate wait time; set tokens to 0 before releasing lock
-            wait_time = (1 - self.tokens) / self.rate
-            self.tokens = 0
+                # Not enough tokens — calculate how long until one refills
+                wait_time = (1 - self.tokens) / self.rate
 
-        # Lock is released here — other acquires can proceed during sleep
-        await asyncio.sleep(wait_time)
-
-        async with self._lock:
-            self.last_update = time.monotonic()
-            self.queue_length -= 1
-            self.total_requests += 1
-            self.total_wait_time += wait_time
-
-        return wait_time
+            # Release lock while sleeping so other coroutines can check
+            await asyncio.sleep(wait_time)
+            total_wait += wait_time
     
-    def get_metrics(self) -> dict:
+    def get_metrics(self) -> Dict[str, Any]:
         """Return rate limiter performance metrics."""
         return {
             "total_requests": self.total_requests,
             "avg_wait_time_ms": (self.total_wait_time / max(1, self.total_requests)) * 1000,
             "current_queue": self.queue_length,
             "tokens_available": self.tokens,
-            "capacity": self.capacity
+            "capacity": self.capacity,
         }
-    
-    async def __aenter__(self):
+
+    async def __aenter__(self) -> "AsyncRateLimiter":
         await self.acquire()
         return self
-    
-    async def __aexit__(self, *args):
+
+    async def __aexit__(self, *args: object) -> None:
         pass

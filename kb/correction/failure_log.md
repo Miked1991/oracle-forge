@@ -7,7 +7,15 @@
 ## 2026-04-08
 
 **[Q023]** → INT to String join failure: Agent attempted to join PostgreSQL subscriber_id (INT) directly with MongoDB collection (String format "CUST-{id}")
-**Correct:** Use resolve_join_key(subscriber_id, 'postgres', 'mongodb') → returns 'CUST-{id}'
+**Correct:** Use `JoinKeyResolver().resolve_cross_db_join(subscriber_id, mongo_key, 'postgresql', 'mongodb')` from `utils/join_key_resolver.py`. For Telecom: `f"CUST-{subscriber_id}"`. For Healthcare: `f"PT-{patient_id}"`.
+
+```python
+from utils.join_key_resolver import JoinKeyResolver
+resolver = JoinKeyResolver()
+pg_id, mongo_id = resolver.resolve_cross_db_join(
+    subscriber_id, mongo_key, 'postgresql', 'mongodb'
+)
+```
 
 **[Q045]** → Agent returned raw review.text when query asked for "number of reviews mentioning parking"
 **Correct:** Extract with contains('parking') filter before counting
@@ -66,4 +74,4 @@
 ## Injection Test
 
 Q: What went wrong on Q023 and the fix?
-A: INT to String join failed. Fix: resolve_join_key
+A: INT to String join failed. Fix: JoinKeyResolver().resolve_cross_db_join(pg_id, mongo_key, 'postgresql', 'mongodb')

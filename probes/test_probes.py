@@ -2,7 +2,8 @@
 """
 test_probes.py - Automated Adversarial Probe Runner for Oracle Forge Agent
 
-Runs 18 probes against the data agent and verifies correctness.
+Runs 21 probes against the data agent and verifies correctness.
+Probe definitions are kept in sync with probes/probes.md (v3.0).
 
 Usage:
     # Test a live agent via HTTP endpoint
@@ -12,7 +13,7 @@ Usage:
     python test_probes.py --direct
 
     # Run only specific probes by ID
-    python test_probes.py --agent-url http://localhost:8000 --probes M1,I2,U3
+    python test_probes.py --agent-url http://localhost:8000 --probes M1,J2,U3
 
 Results are saved to test_results.json alongside this file.
 """
@@ -27,7 +28,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime
 
 # Max probes executing simultaneously. Keeps the agent from being overwhelmed
-# while still running the 18-probe suite in parallel.
+# while still running the 21-probe suite in parallel.
 _PROBE_CONCURRENCY = 5
 
 # Agent query timeout in seconds (cross-DB joins can be slow).
@@ -43,143 +44,186 @@ _QUERY_TIMEOUT = 60.0
 #   - Multi-word phrase    → case-insensitive substring match
 # -----------------------------------------------------------------------------
 PROBES: List[Tuple[str, str, str, List[str]]] = [
-    # ── M: Multi-database (6 probes) ─────────────────────────────────────────
+    # ── M: Multi-database routing (6 probes) ─────────────────────────────────
     (
         "M1", "M",
-        "For each customer who opened a support ticket in MongoDB, show their "
-        "total sales amount from PostgreSQL. Customer IDs in PostgreSQL are "
-        "integers; in MongoDB they are strings like 'CUST_123'.",
-        # Fixed: "CUST_" and "total_sales" are schema artifacts that never appear
-        # in a natural-language response. Correct keywords validate the join result.
-        ["total sales", "customer"],
+        "Which customers have both made a purchase in Q3 2024 AND have an open "
+        "support ticket?",
+        # Correct response joins PostgreSQL (orders) with DuckDB (tickets).
+        # Must mention customers matched across both sources.
+        ["Q3 2024", "support ticket"],
     ),
     (
         "M2", "M",
-        "Find products that were ordered in SQLite (order_date = 'YYYY-MM-DD') "
-        "but had zero stock in DuckDB (inventory_date = 'MM/DD/YYYY') during "
-        "the same calendar week.",
-        ["week", "zero stock"],
+        "What is the average review rating for businesses that have more than "
+        "100 check-ins?",
+        # Must recompute from MongoDB reviews.stars, NOT use stale business.stars.
+        # Correct response names a rating value derived from live review data.
+        ["rating", "check-ins"],
     ),
     (
         "M3", "M",
-        "From MongoDB product reviews (field 'review_text'), count how many "
-        "contain the word 'defective'. Then join with PostgreSQL returns table "
-        "to see which defective products were returned within 30 days.",
-        ["defective", "returned"],
+        "List the top 5 cities by number of new customers acquired in Q1 2024.",
+        # Negative probe — PostgreSQL only (customers.city, customers.created_at).
+        # Agent must NOT fan out to DuckDB.
+        ["cities", "Q1 2024"],
     ),
     (
         "M4", "M",
-        "What is the average sentiment score (MongoDB `sentiment` field) for "
-        "products that have sold more than 100 units in PostgreSQL?",
-        # Fixed: "average sentiment" is a free-text phrase that may not appear
-        # verbatim; "units" is out of spec. "sentiment" + "products" cover the
-        # two concepts a correct response must express.
-        ["sentiment", "products"],
+        "For each GitHub repository, how many unique contributors also appear "
+        "in the dependency graph?",
+        # Requires DuckDB (repos, contributors) + SQLite (dependencies).
+        # Agent must execute per-engine, then merge in Python.
+        ["contributors", "dependency"],
     ),
     (
         "M5", "M",
-        "For each user in MongoDB collection 'users', fetch their last login "
-        "date from PostgreSQL table 'logins'.",
-        ["last login", "user"],
+        "Which patients have both a high-risk mutation AND low gene expression "
+        "for the TP53 gene?",
+        # Requires DuckDB (gene_expression) + PostgreSQL (mutations).
+        # patient_id format mismatch: 'TCGA-XX-XXXX' vs UUID — resolve_tcga_id().
+        ["TP53", "mutation"],
     ),
     (
         "M6", "M",
-        "Join SQLite table 'customers' (customer_id TEXT) with DuckDB table "
-        "'loyalty' (cust_id INTEGER) using the first 5 characters of the TEXT "
-        "id after stripping 'ID-'. Return name and points.",
+        "Join the SQLite `customers` table (customer_id TEXT like 'ID-98765') "
+        "with DuckDB `loyalty` table (cust_id INTEGER) using the first 5 digits "
+        "of the numeric part. Return name and loyalty points.",
+        # resolve_chain(['strip_prefix', 'first_5_chars']) + zfill(5) for short keys.
         ["name", "points"],
     ),
 
-    # ── I: Ill-formatted join keys (4 probes) ────────────────────────────────
+    # ── J: Ill-formatted join keys (5 probes) ────────────────────────────────
     (
-        "I1", "I",
-        "Match customers from PostgreSQL (id = 12345) with CRM MongoDB "
-        "(customer_ref = 'CUST-12345'). Show name and total tickets.",
-        ["name", "tickets"],
+        "J1", "J",
+        "How many customers in the CRM database have a churn risk score "
+        "above 0.7?",
+        # customer_id (PostgreSQL int) vs customer_ref ('C{id}' string in DuckDB).
+        # Naive join returns 0 rows; fix strips 'C' prefix before joining.
+        ["churn risk", "0.7"],
     ),
     (
-        "I2", "I",
-        "SQLite products table has 'PRD_123_A', DuckDB inventory has "
-        "'PRD-123-A'. Join them.",
-        ["product", "inventory"],
+        "J2", "J",
+        "What is the average NPS score for enterprise-tier customers?",
+        # Negative probe — int-to-int join (PostgreSQL + SQLite).
+        # Agent must NOT add unnecessary prefix stripping.
+        ["NPS", "enterprise"],
     ),
     (
-        "I3", "I",
-        "PostgreSQL users table stores email as username. MongoDB activity log "
-        "stores 'user' as the local part (before '@'). Join to count actions "
-        "per user.",
-        ["actions", "per user"],
+        "J3", "J",
+        "Which books have reviews with an average rating below 3 in both "
+        "the PostgreSQL and SQLite databases?",
+        # Negative probe — integer book_id in both DBs; direct join, no transform.
+        ["books", "rating"],
     ),
     (
-        "I4", "I",
-        "Join SQLite 'supplier' table (supplier_name VARCHAR) with DuckDB "
-        "'procurement' table (vendor_name TEXT) where names may have extra "
-        "spaces or different case.",
-        # Fixed: was ["supplier", "vendor"] — generic field names that appear in
-        # any response, including wrong ones. probes.md specifies "Acme Corp",
-        # a specific resolved name that validates the fuzzy match actually worked.
-        ["Acme Corp"],
+        "J4", "J",
+        "Find customers who have tickets labeled 'CUST-0001001' in the DuckDB "
+        "system but appear as ID 1001 in the PostgreSQL system.",
+        # strip_cust_prefix(): 'CUST-0001001' → 1001 (zero-pad lookahead prevents
+        # ValueError on all-zero IDs like 'CUST-0000000').
+        ["CUST-0001001", "1001"],
+    ),
+    (
+        "J5", "J",
+        "How many Yelp business reviews have a 'useful' vote count above the "
+        "median for that business category?",
+        # DuckDB business.categories is pipe-separated ('Restaurants|Pizza|Italian').
+        # Must split on '|' for exact category match; business_id join is direct.
+        ["useful", "median"],
     ),
 
-    # ── U: Unstructured text transformation (4 probes) ───────────────────────
+    # ── U: Unstructured text extraction (4 probes) ───────────────────────────
     (
         "U1", "U",
-        "From the 'notes' column in MongoDB (free text), find the total amount "
-        "refunded in March 2026. Example note: 'Refunded $49.99 for order 8823'.",
-        ["49.99", "refunded"],
+        "How many Yelp reviews in 2024 mention 'wait time' as a negative "
+        "experience?",
+        # LIKE '%wait%' over-counts by 3-4x (includes 'can't wait', 'wait staff').
+        # Fix: WAIT_COMPLAINT regex scopes to complaint phrases only.
+        ["wait time", "2024"],
     ),
     (
         "U2", "U",
-        "Count tickets where severity is 'high' based on keywords: "
-        "'urgent', 'critical', 'down', 'outage'.",
-        ["high", "urgent"],
+        "What percentage of support tickets in Q4 2023 mention the word "
+        "'urgent' in their description?",
+        # Case-sensitive LIKE '%urgent%' misses 'Urgent' and 'URGENT' (~15% undercount).
+        # Fix: ILIKE in PostgreSQL or str.contains(case=False) in Python.
+        ["urgent", "Q4 2023"],
     ),
     (
         "U3", "U",
-        "From product descriptions like 'Samsung TV 55\" black', "
-        "count how many are black vs silver.",
-        ["black", "silver"],
+        "Classify the top 10 most-reviewed Yelp businesses by whether their "
+        "review text is predominantly positive or negative.",
+        # Agent must call classify_bulk() BEFORE return_answer.
+        # Three-step pipeline: top-10 IDs (DuckDB) → texts (MongoDB) → classify.
+        ["positive", "negative"],
     ),
     (
         "U4", "U",
-        "Classify churn reasons from 'feedback' column into "
-        "'price', 'service', 'competitor', 'other'.",
-        ["price", "service", "competitor"],
+        "How many GitHub repositories have a README that mentions "
+        "'machine learning' or 'deep learning'?",
+        # NULL guard required: readme_text IS NOT NULL before LIKE filter.
+        # Without it, NULL rows cause silent miscounts on sparse datasets.
+        ["machine learning", "deep learning"],
     ),
 
-    # ── D: Domain knowledge (4 probes) ───────────────────────────────────────
+    # ── D: Domain knowledge (6 probes) ───────────────────────────────────────
     (
         "D1", "D",
-        "What is the churn rate for Q1 2026? Churn is defined as customers "
-        "who have not made a payment in the last 90 days.",
-        ["churn rate", "90 days"],
+        "Which customers are currently 'active' in the CRM system?",
+        # 'Active' is NOT row existence. Definition: at least one purchase in the
+        # last 90 days. Filter: WHERE last_purchase_date >= CURRENT_DATE - 90 days.
+        ["90 days", "active"],
     ),
     (
         "D2", "D",
-        "Show total sales for FY2025 (July 2024 - June 2025).",
-        ["FY2025", "sales"],
+        "What was the total revenue for Q3 2023, excluding refunded orders?",
+        # Must filter: status NOT IN ('refunded', 'cancelled', 'returned').
+        # Never sum full orders table for revenue figures.
+        ["revenue", "refund"],
     ),
     (
         "D3", "D",
-        "Count active accounts on March 31, 2026. "
-        "Active means: status != 'closed' AND last_login > 2026-01-01.",
-        # Fixed: was ["active accounts", "not closed"]. "not closed" is never
-        # produced verbatim by any agent; probes.md specifies ["active accounts"].
-        ["active accounts"],
+        "What is the daily return for AAPL stock in the week of 2024-01-15?",
+        # Must use close-to-close pct_change(), NOT intraday (close/open - 1).
+        # First row is NaN — do not fill with 0.
+        ["daily return", "AAPL"],
     ),
     (
         "D4", "D",
-        "What was the total revenue in Q3? Use the authoritative source.",
-        ["revenue", "authoritative"],
+        "Which Yelp businesses are currently open and have a rating of 4.5 "
+        "or higher?",
+        # Must include is_open filter; rating alone is insufficient.
+        # Without is_open, permanently closed businesses appear in results.
+        # Keyword "open" is used instead of "is_open" so correct answers that
+        # phrase the filter as "currently open" or "open businesses" still pass.
+        ["open", "4.5"],
+    ),
+    (
+        "D5", "D",
+        "What is the NPS promoter zone threshold for crmarenapro?",
+        # crmarenapro uses -100 to +100 scale (NOT standard 0-10).
+        # Promoter zone = score >= 50. Do NOT apply standard NPS logic.
+        ["50", "promoter"],
+    ),
+    (
+        "D6", "D",
+        "Show total sales for FY2025. Use the authoritative revenue source.",
+        # FY2025 = July 1 2024 - June 30 2025 (not calendar year).
+        # Authoritative table: finance.fact_revenue (NOT deprecated sales.order_line).
+        # "fact_revenue" replaced with "revenue" so answers that reference the
+        # table as "fact revenue table" or "the revenue fact" also pass;
+        # "authoritative" catches answers that explicitly name the correct source.
+        ["FY2025", "revenue", "authoritative"],
     ),
 ]
 
 # Category labels for the summary report
 _CAT_LABELS: Dict[str, str] = {
-    "M": "Multi-DB          ",
-    "I": "Ill-Formatted Keys",
-    "U": "Unstructured Text ",
-    "D": "Domain Knowledge  ",
+    "M": "Multi-DB Routing   ",
+    "J": "Ill-Formatted Keys ",
+    "U": "Unstructured Text  ",
+    "D": "Domain Knowledge   ",
 }
 
 
@@ -235,8 +279,6 @@ class ProbeTestRunner:
                     timeout=aiohttp.ClientTimeout(total=10),
                 ) as resp:
                     if resp.status != 200:
-                        # Hard abort — running 18 probes against a down agent
-                        # produces 18 misleading failures instead of one clear message.
                         print(
                             f"ERROR: Agent health check returned HTTP {resp.status}. "
                             f"Is the agent running at {self.agent_url}?"
@@ -267,7 +309,7 @@ class ProbeTestRunner:
         """
         Case-insensitive match with anti-false-positive guard.
 
-        Single-word keyword  → word-boundary regex  (\bkeyword\b)
+        Single-word keyword  → word-boundary regex  (\\bkeyword\\b)
             Prevents 'high' matching 'highway', 'actions' matching 'transactions'.
         Multi-word phrase    → plain substring match
             'total sales', 'active accounts', 'churn rate', etc.
@@ -353,7 +395,6 @@ class ProbeTestRunner:
             probes_to_run = [p for p in PROBES if p[0] in filter_set]
 
         total = len(probes_to_run)
-        # Map probe ID → original index so we can restore order after gather
         order = {pid: i for i, (pid, *_) in enumerate(probes_to_run)}
 
         print(f"\n{'='*60}")
@@ -376,7 +417,6 @@ class ProbeTestRunner:
                 "expected_keywords": keywords,
                 "passed": passed,
                 "message": message,
-                # json.dumps preserves structure; str(dict) produces unparseable output
                 "trace_snippet": (
                     json.dumps(trace, default=str)[:300] if trace else None
                 ),
@@ -388,7 +428,6 @@ class ProbeTestRunner:
             for pid, cat, query, kws in probes_to_run
         ])
 
-        # Restore original probe order for the report
         results: List[Dict[str, Any]] = sorted(raw, key=lambda r: order[r["id"]])
         passed_count = sum(1 for r in results if r["passed"])
 
@@ -412,7 +451,7 @@ class ProbeTestRunner:
                 cat_stats[cat]["passed"] += 1
 
         print("\nCategory Breakdown:")
-        for cat in ["M", "I", "U", "D"]:
+        for cat in ["M", "J", "U", "D"]:
             if cat not in cat_stats:
                 continue
             s = cat_stats[cat]
@@ -420,7 +459,7 @@ class ProbeTestRunner:
             bar = "█" * s["passed"] + "░" * (s["total"] - s["passed"])
             print(f"  {_CAT_LABELS[cat]}: {s['passed']}/{s['total']}  ({rate:5.1f}%)  [{bar}]")
 
-        # ── Persist to file (path anchored to script location, not CWD) ───
+        # ── Persist to file ────────────────────────────────────────────────
         output = {
             "timestamp": datetime.now().isoformat(),
             "mode": "direct" if self.use_direct else f"http:{self.agent_url}",
@@ -472,7 +511,7 @@ async def main() -> None:
     parser.add_argument(
         "--probes",
         type=str,
-        help="Comma-separated probe IDs to run (e.g., M1,I2,U3). Default: all",
+        help="Comma-separated probe IDs to run (e.g., M1,J2,U3). Default: all",
     )
 
     args = parser.parse_args()
