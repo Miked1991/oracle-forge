@@ -20,7 +20,7 @@
 ## Key Design Decisions
 - Context layering: [describe your 3+ layers]
 - Multi-database routing: [conductor-worker pattern]
-- Self-correction: [kb/correction/ failure log + resolved patterns]
+- Self-correction: [kb/corrections/ failure log + resolved patterns]
 
 ## What Worked
 - [Pattern 1]

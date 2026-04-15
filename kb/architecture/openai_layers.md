@@ -6,7 +6,7 @@
 
 **Layer 2 - Institutional Knowledge:** Which tables are authoritative, data quality notes. Our kb/domain/domain_terms/
 
-**Layer 3 - Interaction Memory:** Corrections from previous queries. Our kb/correction/
+**Layer 3 - Interaction Memory:** Corrections from previous queries. Our kb/corrections/
 
 **Layer 4 - Query Patterns:** Successful SQL/MongoDB patterns from prior runs.
 
@@ -18,7 +18,7 @@
 
 **Layer A (Schema):** Load once per DB type used in session
 **Layer B (Institutional):** kb/domain/joins + terms (always loaded)
-**Layer C (Correction / correction log):** kb/correction/failure_log.md (always loaded)
+**Layer C (Correction / correction log):** kb/corrections/failure_log.md (always loaded)
 
 **Success metric:** Agent resolves join key mismatch without being explicitly told.
 

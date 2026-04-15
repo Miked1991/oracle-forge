@@ -1,7 +1,7 @@
 
 ---
 
-## File: `kb/correction/regression_prevention.md`
+## File: `kb/corrections/regression_prevention.md`
 
 ```markdown
 # Regression Prevention - Queries That Broke and Were Fixed

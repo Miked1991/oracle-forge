@@ -478,7 +478,7 @@ df['daily_return'] = df['close'].pct_change()
 | `kb/domain/domain_terms/fiscal_calendar.md` | FY2025 = July 2024–June 2025 |
 | `kb/domain/domain_terms/authoritative_tables.md` | `finance.fact_revenue` vs deprecated `sales.order_line` |
 | `kb/domain/unstructured/text_extraction_patterns.md` | Yelp `categories` pipe-split pattern |
-| `kb/correction/failure_log.md` | `C{id}` strip; `ILIKE`; `pct_change()`; `is_open` guard |
+| `kb/corrections/failure_log.md` | `C{id}` strip; `ILIKE`; `pct_change()`; `is_open` guard |
 | `kb/domain/unstructured/null_guards.md` | NULL guard pattern for all LIKE queries on nullable text columns |
 | `kb/domain/unstructured/sentiment_mapping.md` | Labelled examples; sarcasm flags; mixed-review edge cases |
 | `utils/join_key_resolver.py` | `strip_cust_prefix()`; `resolve_tcga_id()`; `resolve_chain()`; `resolve_pair_chain()`; `first_5_chars()` with zero-pad |

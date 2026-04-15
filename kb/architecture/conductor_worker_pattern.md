@@ -34,7 +34,7 @@ conductor.correlate(results)
 
 ## Failure Recovery
 
-If worker returns error: conductor logs to kb/correction/failure_log.md
+If worker returns error: conductor logs to kb/corrections/failure_log.md
 Then spawns corrected worker with additional context from corrections log
 
 ## Injection Test

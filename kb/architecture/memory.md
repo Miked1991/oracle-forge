@@ -28,14 +28,14 @@
 
 1. Load MEMORY.md (points to kb/architecture/*and kb/domain/*)
 2. Load kb/domain/joins/join_key_mappings.md
-3. Load kb/correction/failure_log.md
+3. Load kb/corrections/failure_log.md
 
 **On query requiring specific DB:**
 4. Load kb/domain/databases/[db_type]_schemas.md
 
 **On join failure:**
 5. Load kb/domain/joins/cross_db_join_patterns.md
-6. Search kb/correction/failure_by_category.md
+6. Search kb/corrections/failure_by_category.md
 
 ## Layer 3 — Session Transcript Format
 
@@ -56,7 +56,7 @@ Each session is logged as a `.jsonl` file under `sessions/`. One JSON object per
 }
 ```
 
-autoDream reads these `.jsonl` files on Fridays to consolidate into `correction/resolved_patterns.md`.
+autoDream reads these `.jsonl` files on Fridays to consolidate into `corrections/resolved_patterns.md`.
 
 ## Critical Rules
 

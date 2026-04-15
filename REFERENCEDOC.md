@@ -104,7 +104,7 @@ kb/
 │   └── 📁 domain_terms/
 │       └── 📄 business_glossary.md
 │
-├── 📁 correction/                    # SELF-LEARNING loop
+├── 📁 corrections/                   # SELF-LEARNING loop
 │   ├── 📄 CHANGELOG.md
 │   ├── 📄 failure_log.md
 │   ├── 📄 failure_by_category.md
@@ -122,7 +122,7 @@ kb/
 |-----------|---------|-----------|------------------|
 | `architecture/` | Teach agent HOW to organize itself | Every session start | Weekly (as new patterns emerge) |
 | `domain/` | Provide DAB-specific data knowledge | Every session + on-demand per DB type | Weekly (as new schemas understood) |
-| `correction/` | Enable self-learning from failures | Every session start + append on failure | Real-time (failures) + Weekly (autoDream) |
+| `corrections/` | Enable self-learning from failures | Every session start + append on failure | Real-time (failures) + Weekly (autoDream) |
 | `evaluation/` | Define scoring and submission rules | Evaluation runs only | As needed |
 
 ---
@@ -834,7 +834,7 @@ if "active customer" in query:
 
 ```python
 # Session start - ALWAYS load
-conductor.load_kb("correction/failure_log.md")
+conductor.load_kb("corrections/failure_log.md")
 
 # On failure - append
 with open("failure_log.md", "a") as f:
@@ -1015,8 +1015,8 @@ JSON format:
 |-----------------|-----------|----------|
 | **Every Session Start (ALWAYS)** | `domain/joins/join_key_mappings.md` | 1 (CRITICAL) |
 | | `domain/domain_terms/business_glossary.md` | 2 (CRITICAL) |
-| | `correction/failure_log.md` | 3 (CRITICAL) |
-| | `correction/resolved_patterns.md` | 4 |
+| | `corrections/failure_log.md` | 3 (CRITICAL) |
+| | `corrections/resolved_patterns.md` | 4 |
 | | `architecture/01_three_layer_memory.md` | 5 |
 | | `architecture/05_conductor_worker_pattern.md` | 6 |
 | **On PostgreSQL Query** | `domain/databases/postgresql_schemas.md` | DB-specific |
@@ -1027,8 +1027,8 @@ JSON format:
 | **On Unstructured Extraction** | `domain/unstructured/text_extraction_patterns.md` | Task-specific |
 | | `domain/unstructured/sentiment_mapping.md` | |
 | **On Join Operation** | `domain/joins/cross_db_join_patterns.md` | Task-specific |
-| **On Failure** | Append to `correction/failure_log.md` | Write |
-| **Weekly (Friday)** | Run autoDream on `correction/` | Maintenance |
+| **On Failure** | Append to `corrections/failure_log.md` | Write |
+| **Weekly (Friday)** | Run autoDream on `corrections/` | Maintenance |
 | **Evaluation Only** | `architecture/06_evaluation_harness_schema.md` | Evaluation |
 | | `evaluation/dab_scoring_method.md` | |
 | | `evaluation/submission_format.md` | |
@@ -1052,8 +1052,8 @@ class OracleForgeAgent:
             # Priority 1 - CRITICAL (always load)
             ("domain/joins/join_key_mappings.md", "join_mapping"),
             ("domain/domain_terms/business_glossary.md", "glossary"),
-            ("correction/failure_log.md", "failures"),
-            ("correction/resolved_patterns.md", "resolved"),
+            ("corrections/failure_log.md", "failures"),
+            ("corrections/resolved_patterns.md", "resolved"),
             # Priority 2 - Architecture
             ("architecture/01_three_layer_memory.md", "memory"),
             ("architecture/05_conductor_worker_pattern.md", "conductor"),
@@ -1108,7 +1108,7 @@ class OracleForgeAgent:
         """Append failure to corrections log"""
         entry = f"\n**[{datetime.now().isoformat()}]** → {wrong}\n**Correct:** {correct}\n"
         
-        with open(self.kb_path / "correction/failure_log.md", 'a') as f:
+        with open(self.kb_path / "corrections/failure_log.md", 'a') as f:
             f.write(entry)
 ```
 

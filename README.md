@@ -15,6 +15,37 @@ Sourced from `planning/inception_week8_oracle_forge.md`.
 | Meseret  | Signal Corps          | X/Twitter threads, LinkedIn article, community engagement |
 | Kirubel  | Signal Corps          | Daily Slack updates, Cloudflare application, Reddit/Discord |
 
+## Architecture (high level)
+
+```mermaid
+flowchart LR
+  subgraph ui [Client]
+    CLI[agent.chat_cli]
+    ST[Streamlit UI]
+  end
+  subgraph agent [Oracle Forge agent]
+    C[ContextBuilder + Planner]
+    R[LLM reasoner]
+  end
+  MCP[MCP Toolbox]
+  PG[(PostgreSQL)]
+  MG[(MongoDB)]
+  SQ[(SQLite)]
+  DK[(DuckDB)]
+  KB[kb/ architecture + domain + corrections]
+  CLI --> C
+  ST --> C
+  C --> KB
+  C --> R
+  R --> MCP
+  MCP --> PG
+  MCP --> MG
+  MCP --> SQ
+  MCP --> DK
+```
+
+The agent loads layered KB documents, plans per-database queries, and calls the Toolbox once per engine; cross-engine joins are merged in Python (see `agent/AGENT.md`).
+
 ## Facilitator quickstart (clean machine)
 
 Use this to get a workshop or review environment running without hunting through the longer sections below.
@@ -63,7 +94,7 @@ docker compose -f mcp/docker-compose.yml up -d postgres mongo toolbox
 docker compose -f mcp/docker-compose.yml --profile ui up -d streamlit
 ```
 
-3. Open **http://localhost:8501** (or `http://<server-ip>:8501` from another machine if the host firewall allows port 8501).
+3. **Live agent (shared server):** **http://llama.10academy.org:8501/** — use this from the workshop network when port 8501 is not exposed publicly. Local/Docker: **http://localhost:8501**.
 
 The UI container sets `MCP_BASE_URL=http://toolbox:5000` and bind-mounts the repo to `/workspace` so `kb/` and local paths stay consistent with the Toolbox. **Important:** your `.env` may say `MCP_BASE_URL=http://localhost:5000` for host-side runs; inside Docker, process environment (e.g. `toolbox:5000`) must win, so the app loads `.env` with *merge-only* semantics and does not override `MCP_BASE_URL` when Compose already set it. For production or the public internet, put a reverse proxy with TLS in front of port 8501 and add authentication — do not expose the app or MCP port without controls.
 
@@ -124,7 +155,7 @@ oracle-forge-data-agent/
 │   │   ├── joins/                   # Cross-DB join key transformations
 │   │   ├── unstructured/            # Sentiment + text extraction patterns
 │   │   └── domain_terms/            # Business glossary (telecom, Yelp, healthcare)
-│   ├── correction/                  # Self-learning correction loop
+│   ├── corrections/                 # Self-learning correction loop
 │   │   ├── failure_log.md           # Chronological failures + fixes
 │   │   ├── failure_by_category.md   # Failures by DAB's 4 categories
 │   │   ├── resolved_patterns.md     # Permanent fixes with confidence scores
@@ -360,7 +391,7 @@ Use this loop to improve pass rates without losing traceability:
 2. Port practical fixes into `DataAgentBench/common_scaffold/` (prompting, tool usage, routing/execution behavior).
 3. Run targeted DAB query tests first (single query, fixed `root_name` per run).
 4. Validate with `common_scaffold.validate.validate`.
-5. Record failure pattern and fix in `kb/correction/` to prevent regressions.
+5. Record failure pattern and fix in `kb/corrections/` to prevent regressions.
 6. Scale from single-query tests to dataset-level runs once targeted failures are resolved.
 
 Notes:
@@ -399,8 +430,8 @@ Inject these files at the start of every agent session:
 1. `architecture/memory.md`
 2. `architecture/conductor_worker_pattern.md`
 3. `architecture/openai_layers.md`
-4. `correction/failure_log.md`
-5. `correction/resolved_patterns.md`
+4. `corrections/failure_log.md`
+5. `corrections/resolved_patterns.md`
 
 Then load on demand:
 
