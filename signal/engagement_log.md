@@ -19,9 +19,15 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 | 2026-04-10 | Inception document committed to planning/ | Gashaw, Mikiyas | `91634c1` |
 | 2026-04-10 | REFERENCEDOC.md added for team onboarding | Mikiyas | `a6fbd59` |
 | 2026-04-11 | Signal Corps engagement infrastructure created (this file, community log, resource report) | Kirubel | feat/signal-corps-engagement |
+| 2026-04-11 | Repo admin: PR #1 (signal corps infra) + PR #2 (develop sync) merged to main; README add/add conflict resolved. Established team's PR review + merge pipeline | Gemechis | `47cc278`, `e753e1a`, `e158dd2` |
 | 2026-04-12 | KB injection test harness rerun: 21/21 pass on llama-3.1-8b-instant after 13 iterations. New INJECTION_TEST_LOG.md committed | Mikias | `2843265` |
 | 2026-04-13 | Agent pipeline merged with develop (planner, context_builder, tools_client, sandbox_client, utils with normalize_join_key) | Eyor | `d5cd573` |
 | 2026-04-13 | Probes + utilities + tests pushed: 19 probes (probes.md + test_probes.py), 6 utility modules (date_normalizer, join_key_resolver, query_router, rate_limiter, schema_introspector, unstructured_extractor), tests/ infrastructure (join_keys + routing). New KB docs: authoritative_tables, fiscal_calendar, null_guards. 2,421 insertions / 24 files | Mikias, Gashaw | `ad68f9a` |
+| 2026-04-14 | Adopted fork-first DataAgentBench workflow; wrote setup guide README pointing at forked DAB with OpenRouter + prompt structure changes. Unblocked team access to real DAB dataset via `common_scaffold/DataAgent.py` integration point | Gemechis | `99102de` |
+| 2026-04-14 | LLM config switched Groq → OpenRouter; DB environment standardized on Docker (postgres + mongo via `mcp/docker-compose.yml`). Aligned team on single LLM path + reproducible local DB stack | Gemechis | `c4b3781` |
+| 2026-04-14 | PR #6 merged: feat/agent → develop (38 files / 47,656 insertions). Full agent pipeline + KB + 21/21 injection tests integrated on one branch. Apr 11-13 integration blocker resolved | Eyor (author), Gemechis (merge) | `a416a95` |
+| 2026-04-15 | End-to-end real DAB Yelp evaluation unblocked: fixed response formatting, LLM DB routing, MCP tool config. Best recent pass@1 85.7% (6/7 on 2-trial runs); stress run 42.86% (3/7 on 50-trial) — both values reported for reproducibility | Gemechis | `f274bdf` |
+| 2026-04-15 | PR #8 merged: feat/openrouter-setup → develop. End-to-end Yelp run now on the main integration path | Gemechis | `5946a84` |
 
 ### X/Twitter
 
