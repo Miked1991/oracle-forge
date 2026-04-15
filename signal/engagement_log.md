@@ -78,17 +78,18 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 |------|----------|---------|-----------|----------|-------------|-------|
 | 2026-04-11 | LinkedIn | The Silent Killer of AI Data Agents (Meseret) | 28 | 1,132 | 52 |
 
-### Internal Slack Daily Posts
+### Internal Slack Daily Posts and Weekly summary
 
 | Date | Author | Channel | Content Summary |
 |------|--------|---------|-----------------|
 | 2026-04-07 to 2026-04-11 | Meseret | #oracle-standup | Daily Signal Corps updates posted every working day covering: what shipped, what is stuck, what is next, community intel gathered. 5 posts total across Week 8. |
+
 ### Internal Slack Daily Posts
 
 | Author | Channel | Period | Content Summary |
 |--------|---------|--------|-----------------|
-| Kirubel | #oracle-standup | 2026-04-07 to 2026-04-11 | Posted daily Slack updates across all 5 days of Week 8 based on standup discussions and GitHub commit status. Updates covered: KB layer completions, injection test results, X thread publications, Medium article launch, Reddit posts, and Signal Corps infrastructure setup. 5 posts total. |
-
+| Kirubel | #Team-llama | 2026-04-07 to 2026-04-11 | Posted daily Slack updates across all 5 days of Week 8 based on standup discussions and GitHub commit status. Updates covered: KB layer completions, injection test results, X thread publications, Medium article launch, Reddit posts, and Signal Corps infrastructure setup. 5 posts total. |
+| Meseret | #Team-llama | 2026-04-07 to 2026-04-11 | Posted daily Slack updates across all days of Week 8 based on standup discussions Updates covered and shaed importan resources on the channel
 ---
 
 ### Google Meet Standup Facilitation
@@ -129,6 +130,7 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 |------|--------|-----------|-------|------|---------|----------|
 | 2026-04-13 | Kirubel | r/learnmachinelearning | Silent cross database join failures: has anyone dealt with int vs prefixed string ID mismatches? | [link](https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/silent_cross_database_join_failures_has_anyone/) | TBD | TBD |
 
+
 ### Reddit Replies (Week 9, account: u/Far-Comparison-9745)
 
 | Date | Author | Subreddit | Thread | Reply Summary | Link |
@@ -139,6 +141,9 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 | 2026-04-14 | Kirubel | r/learnmachinelearning | Multi-agent system for user behavior tracking (17yo builder) | Suggested date-anchored memory + injection testing methodology, linked DAB approach | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1s9z7xa/comment/og54mzw/) |
 | 2026-04-14 | Kirubel | r/learnmachinelearning | Semantic Chunking Pipelines for RAG | Counter-positioned direct injection as alternative for bounded domains, 21/21 finding | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1sd17ie/comment/og586f0/) |
 | 2026-04-14 | Kirubel | r/LocalLLaMA | EdgeVDB: On-Device Vector Database | Connected on-device search to bounded-domain injection testing, suggested pre-structured docs | [reply](https://www.reddit.com/r/LocalLLaMA/comments/1sl3rtg/comment/og5aid8/) |
+| 2026-04-14 | Meseret | r/learnmachinelearning | Post asking about benchmark for reasoning stability in long LLM contexts | Answered with DAB reference: 54 queries across 4 DB types, 38% pass@1 ceiling, 40% of failures from incorrect planning compounding across steps. Referenced arxiv.org/abs/2603.20576. Connected to team's live experience building against DAB. | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1slzhgy/multidatabase_query_in_agent/) |
+| 2026-04-14 | Meseret | r/LocalLLaMA | Posted question about silent failure in mid-chain multi-database queries | Post deleted by Reddit moderators before receiving replies. Question asked: when agent fails switching from PostgreSQL to MongoDB does it surface as error or silent wrong result? | -- |
+| 2026-04-15 | Meseret | r/learnmachinelearning | Posted the same question about silent failure in mid-chain multi-database queries | waiting for reply from the community. Question asked: when agent fails switching from PostgreSQL to MongoDB does it surface as error or silent wrong result? |[reply](https://www.reddit.com/r/learnmachinelearning/comments/1q9egkh/comment/og3jf00/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) |
 
 ---
 
@@ -163,23 +168,25 @@ _External responses or findings that changed the team's technical approach._
 ### Week 8 Totals
 - **X posts:** 3
 - **Medium articles:** 1 (Kirubel, ~1200 words, published)
-- **LinkedIn articles:** 1 (Meseret, "Silent Killer of AI Data Agents", published Apr 11)
+- **LinkedIn articles:** 1 (Meseret, "Silent Killer of AI Data Agents", ~1800 words published Apr 11)
 - **SC article deliverable:** ✅ 2/2
 - **Reddit posts:** 2
 - **Reddit comments/replies:** 2 substantive (u/matt-k-wong validation thread + "550 Free LLM Tools" comment)
 - **Discord engagement:** Cohort class group (1, first-mover help) + 3 servers joined (HF, EleutherAI, LlamaIndex)
+- **Slack engagement:** daily standup summary,sharing different resources related to the topics,daily update of what shipped,what stuck and future works.
 
 ### Week 9 In-Progress Totals (as of 2026-04-15)
 - **X reply-placements (Apr 13):** 5 (one received reply from @matanzutta validating thesis)
 - **X Community posts (Apr 14):** 8 across 4 communities (AI Agents, ML, AI/Python/Data, Open Source). 2 received practitioner replies (@jcubic, @anandrishv).
 - **X Communities joined:** 4 (AI Agents 14.7K, ML, AI/Python/Data, Open Source Contributors)
 - **Medium articles published (Week 9):** 1 (Kirubel, "Why Your AI Data Agent Silently Fails on Cross-Database Queries", Apr 14)
-- **Reddit posts:** 1 (new "Silent cross database join failures" post on r/learnmachinelearning)
+- **Reddit posts:** 2 (new "Silent cross database join failures" post on and silent failure in mid-chain multi-database queries  r/learnmachinelearning)
 - **Reddit replies (Apr 14, deployed by Kirubel as u/Far-Comparison-9745):** 6 substantive replies on r/LocalLLaMA + r/learnmachinelearning
 - **Reddit replies received from external practitioners:** 1 (u/This-You-2737 on join-failures post recommending Great Expectations + Scaylor Orchestrate)
 - **Discord:** 3 servers joined (HF, EleutherAI, LlamaIndex). 1 substantive HF #general practitioner exchange (5 messages, ~57 min) with user H$Go on cross-DB joins, MCP discovery, KB injection testing, Level 1 vs Level 2 failure framing.
+- **Linkedin Second article:** Meseret-in progress
 - **External validation logged:** 3 (@matanzutta thesis restatement Apr 13; u/This-You-2737 tooling exchange Apr 14; H$Go independently arrived at "fuzzy AI" matching = our Correction Layer pattern Apr 14)
-
+- **daily Google Standup meeting and Slack Engagement:**Daily discussion on the topics and issues we are facing.
 ### Accounts Tracked for Reply-Threading
 
 | Account | Platform | Focus Area | Link |
