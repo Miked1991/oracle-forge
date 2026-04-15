@@ -38,6 +38,8 @@ Week 8 deliverables focused on establishing Oracle Forge's external technical cr
 | 2 | 2026-04-11 | r/LocalLLaMA | Injection testing methodology with Groq Llama (21/21 pass) | [reddit.com](https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/) | Active reply thread with u/matt-k-wong validating Karpathy structured-docs thesis |
 | 3 | 2026-04-11 | r/LocalLLaMA | Substantive comment on "Curated 550 Free LLM Tools" — flagged genai-toolbox as our MCP toolbox layer, asked community for OSS for ill-formatted join key resolution (PG int ↔ MongoDB "CUST-00123"), suggested DataAgentBench + promptfoo + langsmith as additions, offered to PR | [reddit.com](https://www.reddit.com/r/LocalLLaMA/comments/1sigg35/curated_550_free_llm_tools_for_builders_apis/) | Posted, tracking |
 | 4 | 2026-04-13 | r/learnmachinelearning | New post: "Silent cross database join failures: has anyone dealt with int vs prefixed string ID mismatches?" | [reddit.com](https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/silent_cross_database_join_failures_has_anyone/) | Live, monitoring |
+| 5 | 2026-04-14 | r/learnmachinelearning |post: When your agent fails mid-chain on a multi-database query — say it correctly retrieves from PostgreSQL but then loses the join context when switching to MongoDB. does the failure show up as an error or does it silently return a result that looks correct but is missing half the data?" | [reddit.com](https://www.reddit.com/r/learnmachinelearning/comments/1slzhgy/multidatabase_query_in_agent/) | Live, monitoring |
+
 
 **r/MachineLearning** was blocked due to insufficient karma — pivoted to r/learnmachinelearning. r/LocalLLaMA delivered the highest-value engagement of Week 8.
 
@@ -45,7 +47,7 @@ Week 8 deliverables focused on establishing Oracle Forge's external technical cr
 | Date | Author | Content | Link | Status |
 |------|--------|---------|------|--------|
 | 2026-04-10 | Kirubel | Post referencing Medium article (cross-DB join key piece) | -- | Published |
-| 2026-04-11 | Meseret | **"The Silent Killer of AI Data Agents (And How We're Engineering Around It)"** — long-form post on silent failure modes in AI data agents (SC article deliverable 2 of 2) | [linkedin.com](https://www.linkedin.com/posts/meseret-bolled-8b395325b_aiengineering-dataengineering-aiagents-activity-7448667030389497856-bPq4) | **Published** |
+| 2026-04-11 | Meseret | The Silent Killer of AI Data Agents (And How We're Engineering Around It)" — long-form post on silent failure modes in AI data agents (SC article deliverable 2 of 2) | [linkedin.com](https://www.linkedin.com/posts/meseret-bolled-8b395325b_aiengineering-dataengineering-aiagents-activity-7448667030389497856-bPq4) | **Published** |
 
 ---
 
