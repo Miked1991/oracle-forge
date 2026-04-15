@@ -115,6 +115,17 @@ _Each entry names the specific technical focus and intelligence gathered._
 
 ---
 
+## 2026-04-15 (Day 9 — Interim Extension Closeout)
+
+| Category | Platform | Technical Focus | Intelligence / Action | Link |
+|----------|----------|-----------------|----------------------|------|
+| Community Participation | Medium | Domain Knowledge, Architecture | Published Article B: injection-testing method (21 single-doc tests, 13 iterations, 8B model), Level 1 vs Level 2 failure framing, and bounded-domain constraints. | https://medium.com/@kirutew17654321/we-injectiontested-21-knowledge-base-documents-on-an-8b-model-here-is-what-actually-worked-9fbc99b22ac8 |
+| Community Participation | X (Twitter) | Domain Knowledge | Posted launch thread for Article B with explicit method and limits; positioned injection testing as document-usability verification, not retrieval benchmarking. | https://x.com/kirubeltewodro2/status/2044376586380546117 |
+| Community Participation | Reddit (r/LocalLLaMA) | Domain Knowledge, Evaluation | Published post: "Stop dumping docs into RAG and praying" — summarized protocol and convergence evidence (21/21 on 8B in bounded domain). | https://www.reddit.com/r/LocalLLaMA/comments/1sm4s0y/stop_dumping_docs_into_rag_and_praying_heres_a/ |
+| Technical Deep-Dive | Reddit (r/LocalLLaMA) | Architecture | Follow-up reply added scope guardrail: test validates extraction fidelity of injected docs; does not replace retrieval for unbounded corpora. | https://www.reddit.com/r/LocalLLaMA/comments/1sm4s0y/comment/ogbj572/ |
+
+---
+
 ## Summary by Technical Focus
 
 | Focus Area | Total Entries | Platforms |
