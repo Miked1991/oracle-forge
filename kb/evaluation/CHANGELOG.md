@@ -15,4 +15,4 @@
 ### Fixed
 
 - submission_format.md — AGENT.md template updated: replaced stale "KB v3 corrections log"
-  reference with correct path `kb/correction/`
+  reference with correct path `kb/corrections/`

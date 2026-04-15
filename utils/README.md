@@ -19,6 +19,10 @@ Reusable Python modules used by the Oracle Forge agent and evaluation harness. I
 
 `AsyncRateLimiter`, `UnstructuredExtractor`, `JoinKeyResolver`, `DateNormalizer`, `SchemaIntrospector`, `SchemaIntrospectionTool`, `QueryRouter`, `TokenLimiter`.
 
+## Tests
+
+Automated tests live under `tests/utils/` (`test_query_router.py`, `test_rate_limiter.py`, `test_token_limiter.py`, `test_date_normalizer.py`, `test_unstructured_extractor.py`, `test_schema_introspection_tool.py`, `test_schema_introspector.py`). Run: `pytest tests/utils/ -q` from the repo root.
+
 ## Dependencies
 
 - **`date_normalizer`** uses `python-dateutil` (see root `requirements.txt`).

@@ -7,7 +7,7 @@ Compresses session transcripts into persistent memory without losing signal. Run
 ## The Algorithm
 
 **Input:** Session transcripts (last 10 sessions, filtered by relevance)
-**Output:** Updated resolved_patterns.md (kb/correction/resolved_patterns.md)
+**Output:** Updated resolved_patterns.md (kb/corrections/resolved_patterns.md)
 
 **Process:**
 
@@ -25,3 +25,9 @@ Compresses session transcripts into persistent memory without losing signal. Run
 Confidence: 12 successes, 0 failures
 Apply when: PostgreSQL customer_id column exists, MongoDB collection has "CUST-{id}"
 Transformation: f"CUST-{customer_id}"
+
+## Injection Test
+
+**Q:** When does autoDream run and what file does it update with consolidated patterns?
+
+**Expected answer:** Runs weekly on Fridays (or when the correction log exceeds 50 entries); updates `kb/corrections/resolved_patterns.md`.

@@ -37,10 +37,10 @@ class ContextBuilder:
             "domain/unstructured/null_guards.md",
         ]
         correction_docs = [
-            "correction/failure_log.md",
-            "correction/failure_by_category.md",
-            "correction/resolved_patterns.md",
-            "correction/regression_prevention.md",
+            "corrections/failure_log.md",
+            "corrections/failure_by_category.md",
+            "corrections/resolved_patterns.md",
+            "corrections/regression_prevention.md",
         ]
 
         db_docs = []
@@ -63,8 +63,8 @@ class ContextBuilder:
             "runtime/runtime_corrections.json": json.dumps(self._load_runtime_corrections(), ensure_ascii=False),
         }
         join_mappings = layers["v2_domain"].get("domain/joins/join_key_mappings.md", "")
-        failure_log = layers["v3_corrections"].get("correction/failure_log.md", "")
-        resolved = layers["v3_corrections"].get("correction/resolved_patterns.md", "")
+        failure_log = layers["v3_corrections"].get("corrections/failure_log.md", "")
+        resolved = layers["v3_corrections"].get("corrections/resolved_patterns.md", "")
         return {
             "question": question,
             "context_layers": {

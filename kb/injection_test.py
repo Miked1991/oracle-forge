@@ -111,22 +111,22 @@ EXPECTED_ANSWERS = {
         "expected_contains": ["last 90 days", "churn_date IS NULL"],
         "expected_exact": None
     },
-    "correction/failure_log.md": {
+    "corrections/failure_log.md": {
         "question": "What went wrong on Q023 and what's the fix?",
         "expected_contains": ["INT", "resolve_join_key"],
         "expected_exact": None
     },
-    "correction/failure_by_category.md": {
+    "corrections/failure_by_category.md": {
         "question": "What are DAB's four failure categories?",
         "expected_contains": ["Multi-Database", "Join Key", "Unstructured", "Domain Knowledge"],
         "expected_exact": None
     },
-    "correction/resolved_patterns.md": {
+    "corrections/resolved_patterns.md": {
         "question": "What is the confidence score for PG-INT to Mongo-String transformation?",
         "expected_contains": ["14/14", "successes"],
         "expected_exact": None
     },
-    "correction/regression_prevention.md": {
+    "corrections/regression_prevention.md": {
         "question": "What happens if regression test fails?",
         "expected_contains": ["Revert", "log failure", "do not deploy"],
         "expected_exact": None

@@ -31,7 +31,7 @@ kb/
 │   └── domain_terms/
 │       └── business_glossary.md       # Term definitions by dataset
 │
-├── correction/            # Self-correction loop (autoDream output)
+├── corrections/           # Self-correction loop (autoDream output)
 │   ├── failure_log.md                 # Chronological failures + fixes
 │   ├── failure_by_category.md         # Failures by DAB's 4 categories
 │   ├── resolved_patterns.md           # Permanent fixes with confidence scores
@@ -56,7 +56,7 @@ kb/
 | Role | KB Responsibility |
 |------|-------------------|
 | Intelligence Officer | Maintain all files. Run injection tests. Compile from raw sources. |
-| Driver | Inject relevant files at session start. Log failures to `correction/failure_log.md`. |
+| Driver | Inject relevant files at session start. Log failures to `corrections/failure_log.md`. |
 | Signal Corps | Validate KB claims against external sources. Surface community corrections. |
 
 ## Session Start — Load Order
@@ -66,8 +66,8 @@ Inject files in this order at the start of each agent session:
 1. `architecture/memory.md`
 2. `architecture/conductor_worker_pattern.md`
 3. `architecture/openai_layers.md`
-4. `correction/failure_log.md`
-5. `correction/resolved_patterns.md`
+4. `corrections/failure_log.md`
+5. `corrections/resolved_patterns.md`
 
 Then load domain-specific files as needed for the active query:
 

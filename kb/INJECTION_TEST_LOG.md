@@ -49,7 +49,7 @@
 ### ✅ architecture/openai_layers.md — 100%
 
 **Q:** What are the minimum three context layers for Oracle Forge?  
-**A:** According to the document, the minimum three context layers for Oracle Forge are:  **Layer A (Schema):** Load once per DB type used in session **Layer B (Institutional):** kb/domain/joins + terms (always loaded) **Layer C (Correction / correction log):** kb/correction/failure_log.md (always loaded)  This is stated in the section "Minimum for Oracle Forge (3 layers that demonstrably work)".  
+**A:** According to the document, the minimum three context layers for Oracle Forge are:  **Layer A (Schema):** Load once per DB type used in session **Layer B (Institutional):** kb/domain/joins + terms (always loaded) **Layer C (Correction / correction log):** kb/corrections/failure_log.md (always loaded)  This is stated in the section "Minimum for Oracle Forge (3 layers that demonstrably work)".  
 **Matched:** `Schema`, `institutional`, `correction log`  
 **Match Rate:** 100%
 
@@ -131,28 +131,28 @@
 **Matched:** `last 90 days`, `churn_date IS NULL`  
 **Match Rate:** 100%
 
-### ✅ correction/failure_log.md — 100%
+### ✅ corrections/failure_log.md — 100%
 
 **Q:** What went wrong on Q023 and what's the fix?  
 **A:** On Q023, the agent attempted to join PostgreSQL subscriber_id (INT) directly with MongoDB collection (String format "CUST-{id}"). The fix is to use resolve_join_key(subscriber_id, 'postgres', 'mongodb') → returns 'CUST-{id}'.  
 **Matched:** `INT`, `resolve_join_key`  
 **Match Rate:** 100%
 
-### ✅ correction/failure_by_category.md — 100%
+### ✅ corrections/failure_by_category.md — 100%
 
 **Q:** What are DAB's four failure categories?  
 **A:** DAB's 4 categories are:  1. Multi-Database Routing Failure 2. Ill-Formatted Join Key Mismatch 3. Unstructured Text Extraction Failure 4. Domain Knowledge Gap  
 **Matched:** `Multi-Database`, `Join Key`, `Unstructured`, `Domain Knowledge`  
 **Match Rate:** 100%
 
-### ✅ correction/resolved_patterns.md — 100%
+### ✅ corrections/resolved_patterns.md — 100%
 
 **Q:** What is the confidence score for PG-INT to Mongo-String transformation?  
 **A:** The confidence score for the PG-INT to Mongo-String transformation is 14/14 successes.  
 **Matched:** `14/14`, `successes`  
 **Match Rate:** 100%
 
-### ✅ correction/regression_prevention.md — 100%
+### ✅ corrections/regression_prevention.md — 100%
 
 **Q:** What happens if regression test fails?  
 **A:** If regression test fails on ANY query, the following steps are taken:  1. Revert the change immediately 2. Log failure to failure_log.md 3. Do not deploy until all regression tests pass 4. Update this file with new failure mode  

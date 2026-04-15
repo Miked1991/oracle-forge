@@ -18,7 +18,7 @@ patterns before re-attempting any query that returns suspicious or empty results
   - Layer B (Institutional): `kb/domain/joins/join_key_mappings.md` +
     `kb/domain/domain_terms/` — always loaded; covers join keys, business glossary,
     fiscal calendar, and authoritative table registry
-  - Layer C (Correction log): `kb/correction/failure_log.md` — always loaded; agent checks
+  - Layer C (Correction log): `kb/corrections/failure_log.md` — always loaded; agent checks
     this before constructing any join that previously produced 0 rows or wrong counts
 
 - **Multi-database routing (Conductor-Worker pattern):**
@@ -29,8 +29,8 @@ patterns before re-attempting any query that returns suspicious or empty results
   Results are **never** merged inside a single SQL query spanning two engines.
 
 - **Self-correction:**
-  `kb/correction/failure_log.md` logs every query failure with root cause and fix.
-  `kb/correction/resolved_patterns.md` tracks successful transformations with confidence
+  `kb/corrections/failure_log.md` logs every query failure with root cause and fix.
+  `kb/corrections/resolved_patterns.md` tracks successful transformations with confidence
   scores (e.g. PG-INT → Mongo-String: 14/14).  autoDream consolidates session transcripts
   into these files weekly so institutional memory persists across sessions.
 

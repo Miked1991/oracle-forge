@@ -12,7 +12,7 @@ _Each entry names the specific technical focus and intelligence gathered._
 
 | Category | Platform | Technical Focus | Intelligence / Action | Link |
 |----------|----------|-----------------|----------------------|------|
-| Technical Deep-Dive | Internal | Architecture | KB v0.1 structure created. Initial directory layout: architecture/, domain/, correction/, evaluation/. Establishes Karpathy-method injection testing as validation approach. | -- |
+| Technical Deep-Dive | Internal | Architecture | KB v0.1 structure created. Initial directory layout: architecture/, domain/, corrections/, evaluation/. Establishes Karpathy-method injection testing as validation approach. | -- |
 
 ---
 

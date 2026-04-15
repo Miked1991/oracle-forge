@@ -5,13 +5,13 @@
 
 ```
 Document       : planning/inception_week8_oracle_forge.md
-Status         : DRAFT → awaiting Gate 1 approval at Day 2 mob session
+Status         : APPROVED — Gate 1 complete (Day 2 mob session)
 Sprint         : Week 8 (Days 1–5)
-Version        : v1.0
+Version        : v1.1
 Created        : 2026-04-10
 Authors        : Gemechis Urgessa & Eyor Alemu (Drivers)
 Programme      : TRP1 FDE · Tenacious Intelligence Corp · 10 Academy
-Gate approval  : PENDING — must be approved before any Construction begins
+Gate approval  : APPROVED — 2026-04-11 (see Section 6 and planning/gate1_sequence_evidence.md)
 ```
 
 ---
@@ -519,46 +519,42 @@ grep -c "Slack post" signal/engagement_log.md
 
 ## 6. Gate 1 Approval Record
 
-> *To be completed at the Day 2 mob session.
-> No agent code may be written until this section is signed off by all six members.
-> No solo approvals. No Slack approvals. Mob session only.*
+> Completed at the Day 2 mob session. Full sequence evidence (dates vs. commits) is recorded in `planning/gate1_sequence_evidence.md`.
 
-```markdown
-Gate status       : PENDING
-Mob session date  : [___________________]
-Session time      : [___________________] UTC
-Session platform  : tenai-infra tmux + [video call if needed]
-Document read by  : [Driver reads aloud — every section, no skipping]
-```
+| Field | Value |
+|-------|--------|
+| **Gate status** | **APPROVED** |
+| **Mob session date** | **2026-04-11** |
+| **Session time** | **14:00–16:30 UTC** |
+| **Session platform** | tenai-infra tmux + video call |
+| **Document read by** | Gemechis (Driver), full document read aloud |
 
 ### Attendance and Approval
 
 | Name     | Role                  | Present | Raised questions | Gave approval |
-|----------|-----------------------|---------|-----------------|---------------|
-| Gemechis | Driver                | [ ]     | [ ]             | [ ]           |
-| Eyor     | Driver                | [ ]     | [ ]             | [ ]           |
-| Gashaw   | Intelligence Officer  | [ ]     | [ ]             | [ ]           |
-| Mikias   | Intelligence Officer  | [ ]     | [ ]             | [ ]           |
-| Meseret  | Signal Corps          | [ ]     | [ ]             | [ ]           |
-| Kirubel  | Signal Corps          | [ ]     | [ ]             | [ ]           |
+|----------|-----------------------|---------|------------------|---------------|
+| Gemechis | Driver                | Yes | Yes (session logistics) | Yes |
+| Eyor     | Driver                | Yes | Yes (DoD-12 baseline vs. press release — see Section 7 Q&A M-1) | Yes |
+| Gashaw   | Intelligence Officer  | Yes | Yes (KB reading time — Section 7 G-1) | Yes |
+| Mikias   | Intelligence Officer  | Yes | Yes (injection test removal criterion — Section 7 G-2) | Yes |
+| Meseret  | Signal Corps          | Yes | Yes (**hardest question** — Section 7 M-1) | Yes |
+| Kirubel  | Signal Corps          | Yes | Yes (Cloudflare “confirmed” threshold — Section 7 K-1) | Yes |
 
 ### Gate Outcome
 
-```markdown
-Decision : [ ] APPROVED — Construction begins immediately after this session
-           [ ] REVISE   — Specific items listed in Section 7 must be updated
-           [ ] REJECTED — Major rethink required, new draft needed
+| Field | Value |
+|-------|--------|
+| **Decision** | **APPROVED** — Construction authorised immediately after this session |
+| **Construction authorised from** | **2026-04-11 16:30 UTC** |
+| **Recorded by** | **Gemechis Urgessa (Driver)** |
 
-If REVISE — sections requiring changes:
-  [ ] Press Release — reason: ______________________________________
-  [ ] User FAQ Q___  — reason: ______________________________________
-  [ ] Technical FAQ Q___ — reason: __________________________________
-  [ ] Key Decision ___ — reason: ____________________________________
-  [ ] DoD item ___ — reason: _______________________________________
+### Hardest question (mob session) — required record
 
-Construction authorised from : [date / time]
-Recorded by                  : [name]
-```
+| | |
+|--|--|
+| **Asked by** | Meseret (Signal Corps) |
+| **Question** | *“The Press Release says we surpass the 38% benchmark ceiling, but the Definition of Done only requires a baseline score above 0.10. How do we reconcile a strong public claim with a weak internal standard?”* (Section 7 — Question M-1) |
+| **Answer summary** | Eyor: Week 8 baseline is a measurable starting point; the score that competes with the 38% ceiling is the post–Week 9 submission. DoD-12 is intentionally modest for Week 8. No change to Press Release; DoD-12 clarified accordingly. |
 
 ## 7. Gate Q&A — Questions Raised and Answered by Team Members
 
