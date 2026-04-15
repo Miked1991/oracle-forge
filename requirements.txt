@@ -18,3 +18,4 @@ h11>=0.16
 annotated-types>=0.6.0
 pydantic-core==2.41.5
 typing-inspection>=0.4.2
+streamlit>=1.28.0

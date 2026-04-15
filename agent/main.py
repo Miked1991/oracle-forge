@@ -5,7 +5,7 @@ import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
 
@@ -137,10 +137,59 @@ def _log_agent_run(payload: Dict[str, Any]) -> None:
         handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
 
-def run_agent(question: str, available_databases: List[str], schema_info: Dict[str, Any]) -> Dict[str, Any]:
+def _normalize_conversation_history(raw: Any) -> Optional[List[Dict[str, str]]]:
+    """Optional multi-turn context for chat; ignored by eval when unset."""
+    if not raw or not isinstance(raw, list):
+        return None
+    out: List[Dict[str, str]] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        role = str(item.get("role", "user")).strip().lower()
+        if role not in {"user", "assistant"}:
+            role = "user"
+        content = str(item.get("content", "")).strip()
+        if not content:
+            continue
+        out.append({"role": role, "content": content})
+    return out or None
+
+
+def _routing_question_from_history(
+    question: str,
+    history: Optional[List[Dict[str, str]]],
+    max_turns: int = 12,
+) -> str:
+    """Transcript + current question for LLM routing and QueryRouter; keep `question` separate for Yelp templates."""
+    if not history:
+        return question
+    lines: List[str] = []
+    for turn in history[-max_turns:]:
+        role = turn.get("role", "user")
+        content = (turn.get("content") or "").strip()
+        if not content:
+            continue
+        label = "User" if role == "user" else "Assistant"
+        lines.append(f"{label}: {content}")
+    if not lines:
+        return question
+    return "\n".join(lines) + f"\n\nCurrent question: {question}"
+
+
+def run_agent(
+    question: str,
+    available_databases: List[str],
+    schema_info: Dict[str, Any],
+    *,
+    conversation_history: Any = None,
+) -> Dict[str, Any]:
+    history = _normalize_conversation_history(conversation_history)
+    routing_question = _routing_question_from_history(question, history)
+
     trace: List[Dict[str, Any]] = []
     repo_root = Path(__file__).resolve().parents[1]
-    load_dotenv(repo_root / ".env", override=True)
+    # Prefer process environment (Docker/CI) over .env file for keys like MCP_BASE_URL.
+    load_dotenv(repo_root / ".env", override=False)
     token_limiter = TokenLimiter(
         max_prompt_tokens=int(os.getenv("MAX_PROMPT_TOKENS", "3500")),
         max_tool_loops=int(os.getenv("MAX_TOOL_LOOPS", "12")),
@@ -162,7 +211,7 @@ def run_agent(question: str, available_databases: List[str], schema_info: Dict[s
     # Always run LLM routing so `llm_guidance` reflects real model output. For Yelp DAB
     # template questions, `QueryPlanner.create_plan` still forces PostgreSQL + template SQL.
     llm_guidance = reasoner.plan(
-        question=question, available_databases=available_databases, context=context
+        question=routing_question, available_databases=available_databases, context=context
     )
     context["llm_guidance"] = {
         "selected_databases": llm_guidance.selected_databases,
@@ -172,7 +221,7 @@ def run_agent(question: str, available_databases: List[str], schema_info: Dict[s
         "used_llm": llm_guidance.used_llm,
     }
     planner = QueryPlanner(context)
-    plan = planner.create_plan(question, available_databases)
+    plan = planner.create_plan(question, available_databases, routing_question=routing_question)
     sandbox = SandboxClient(enabled=True)
     used_databases: List[Dict[str, str]] = []
     retries = 0
@@ -221,6 +270,7 @@ def run_agent(question: str, available_databases: List[str], schema_info: Dict[s
         available_databases=available_databases,
         step_executor=_execute,
         max_replans=min(2, max(0, token_limiter.max_tool_loops // 3)),
+        routing_question=routing_question,
     )
     attempts = closed_loop["attempts"]
     latest_attempt = attempts[-1] if attempts else {"plan": plan, "results": []}
@@ -352,7 +402,12 @@ def run_agent_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
     question = str(payload.get("question", ""))
     available_databases = payload.get("available_databases", ["postgresql", "mongodb", "sqlite", "duckdb"])
     schema_info = payload.get("schema_info", {})
-    result = run_agent(question=question, available_databases=available_databases, schema_info=schema_info)
+    result = run_agent(
+        question=question,
+        available_databases=available_databases,
+        schema_info=schema_info,
+        conversation_history=payload.get("conversation_history"),
+    )
     return {
         "answer": result.get("answer"),
         "query_trace": result.get("query_trace", result.get("trace", [])),

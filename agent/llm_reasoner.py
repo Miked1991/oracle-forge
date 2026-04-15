@@ -29,7 +29,7 @@ class LLMGuidance:
 class GroqLlamaReasoner:
     def __init__(self, repo_root: Optional[Path] = None, token_limiter: Optional[TokenLimiter] = None) -> None:
         self.repo_root = repo_root or Path(__file__).resolve().parents[1]
-        load_dotenv(self.repo_root / ".env", override=True)
+        load_dotenv(self.repo_root / ".env", override=False)
         self.groq_api_key = self._clean_env("GROQ_API_KEY")
         self.openrouter_api_key = self._clean_env("OPENROUTER_API_KEY")
         self.provider = self._resolve_provider()

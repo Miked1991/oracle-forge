@@ -38,8 +38,12 @@ class QueryPlanner:
         self,
         question: str,
         available_databases: List[str],
+        routing_question: str | None = None,
     ) -> Dict[str, Any]:
-        question_l = question.lower()
+        # `question` = latest user utterance (exact string for Yelp SQL templates + tool payloads).
+        # `routing_question` = optional transcript + current question for LLM/router/heuristics.
+        route = (routing_question or question).strip()
+        route_l = route.lower()
         available = [canonical_db_name(item) for item in available_databases]
         # Default: LLM (then router/heuristics) picks DBs. Optional oracle mode forces Postgres-only
         # for Yelp template questions so curated SQL in dab_yelp_postgres.py always runs.
@@ -51,7 +55,7 @@ class QueryPlanner:
         if force_pg:
             selected = ["postgresql"]
         else:
-            selected = self._select_databases(question_l, available)
+            selected = self._select_databases(route_l, available)
         steps: List[PlanStep] = []
         for index, db in enumerate(selected, start=1):
             dialect = "mongodb_aggregation" if db == "mongodb" else "sql"
@@ -61,7 +65,7 @@ class QueryPlanner:
                     step_id=index,
                     database=db,
                     objective=f"Fetch relevant evidence from {db}",
-                    selection_reason=self._selection_reason(question_l, db),
+                    selection_reason=self._selection_reason(route_l, db),
                     dialect=dialect,
                     query_payload=payload,
                 )
@@ -69,7 +73,7 @@ class QueryPlanner:
         return {
             "question": question,
             "plan_type": "multi_db" if len(steps) > 1 else "single_db",
-            "requires_join": len(steps) > 1 or "join" in question_l or "correlate" in question_l,
+            "requires_join": len(steps) > 1 or "join" in route_l or "correlate" in route_l,
             "kb_layers_used": ["v1_architecture", "v2_domain", "v3_corrections"],
             "routing_constraints": self._routing_constraints(),
             "steps": [step.to_dict() for step in steps],
@@ -81,10 +85,11 @@ class QueryPlanner:
         available_databases: List[str],
         step_executor: Callable[[Dict[str, Any]], Dict[str, Any]],
         max_replans: int = 2,
+        routing_question: str | None = None,
     ) -> Dict[str, Any]:
         replans = 0
         all_attempts: List[Dict[str, Any]] = []
-        plan = self.create_plan(question, available_databases)
+        plan = self.create_plan(question, available_databases, routing_question=routing_question)
         while replans <= max_replans:
             step_results = []
             for step in plan["steps"]:
@@ -94,7 +99,9 @@ class QueryPlanner:
             if all(item.get("ok") for item in step_results):
                 return {"ok": True, "attempts": all_attempts, "final_plan": plan}
             failure_types = [item.get("error_type", "unknown_error") for item in step_results if not item.get("ok")]
-            corrected = self._replan_with_corrections(question, available_databases, plan, failure_types)
+            corrected = self._replan_with_corrections(
+                question, available_databases, plan, failure_types, routing_question=routing_question
+            )
             plan = corrected
             replans += 1
         return {"ok": False, "attempts": all_attempts, "final_plan": plan}
@@ -276,8 +283,9 @@ class QueryPlanner:
         available_databases: List[str],
         prior_plan: Dict[str, Any],
         failure_types: List[str],
+        routing_question: str | None = None,
     ) -> Dict[str, Any]:
-        plan = self.create_plan(question, available_databases)
+        plan = self.create_plan(question, available_databases, routing_question=routing_question)
         known_failures = self.context.get("known_failures", [])
         resolved_patterns = self.context.get("resolved_patterns", [])
         correction_notes = []

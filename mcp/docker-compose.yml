@@ -112,3 +112,25 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
+  # Web UI — shareable link on port 8501 (use with: docker compose --profile ui up -d)
+  streamlit:
+    build:
+      context: ..
+      dockerfile: Dockerfile.streamlit
+    profiles: ["ui"]
+    restart: unless-stopped
+    depends_on:
+      toolbox:
+        condition: service_healthy
+    ports:
+      - "8501:8501"
+    environment:
+      MCP_BASE_URL: http://toolbox:5000
+      DUCKDB_PATH: ${DUCKDB_PATH:-/workspace/DataAgentBench/query_yelp/query_dataset/yelp_user.db}
+      SQLITE_PATH: ${SQLITE_PATH:-/workspace/DataAgentBench/query_bookreview/query_dataset/review_query.db}
+    env_file:
+      - ../.env
+    volumes:
+      - ..:/workspace
+    working_dir: /workspace

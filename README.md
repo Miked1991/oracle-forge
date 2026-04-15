@@ -2,6 +2,71 @@
 
 A context-injection knowledge base for an LLM-powered multi-database analytics agent, built for the [DAB benchmark](https://github.com/DABenchmark).
 
+## Team & roles (Week 8 · inception)
+
+Sourced from `planning/inception_week8_oracle_forge.md`.
+
+| Name     | Role                  | Primary accountability |
+|----------|-----------------------|-------------------------|
+| Gemechis | Driver                | Infrastructure setup, tenai-infra, MCP Toolbox, mob session lead |
+| Eyor     | Driver                | Core agent build, evaluation harness, DAB benchmark submission |
+| Gashaw   | Intelligence Officer  | KB v1 architecture docs, Claude Code & OpenAI source research |
+| Mikias   | Intelligence Officer  | KB v2 domain docs, join key glossary, adversarial probe library |
+| Meseret  | Signal Corps          | X/Twitter threads, LinkedIn article, community engagement |
+| Kirubel  | Signal Corps          | Daily Slack updates, Cloudflare application, Reddit/Discord |
+
+## Facilitator quickstart (clean machine)
+
+Use this to get a workshop or review environment running without hunting through the longer sections below.
+
+1. **Prerequisites:** Git with [Git LFS](https://git-lfs.com/), Python 3.11+, [Docker Desktop](https://www.docker.com/products/docker-desktop/) (for MCP Toolbox and databases), and API keys for your chosen LLM provider (Groq and/or OpenRouter per `.env.example`).
+2. **Clone this repo** and install Python deps from the repo root: `pip install -r requirements.txt` (or use `uv`/`venv` as in [DataAgentBench Setup](#dataagentbench-setup-and-test-run)).
+3. **Environment:** Copy `.env.example` to `.env`. Set at minimum `GROQ_API_KEY` or `OPENROUTER_API_KEY`, `LLM_PROVIDER`, `MODEL_NAME`, `MCP_BASE_URL` (default `http://localhost:5000`), and paths/DSNs for `POSTGRES_DSN`, `MONGODB_URI`, `SQLITE_PATH`, and `DUCKDB_PATH` so they match your machine (see comments in `.env.example`). Keep `ORACLE_FORGE_MOCK_MODE=false` for real evals unless you intentionally dry-run.
+4. **DataAgentBench:** Clone your team fork (or upstream) into `DataAgentBench/` at the repo root, run `git lfs pull` inside it, and install its runtime dependencies as in [steps 1–2 under DataAgentBench Setup](#1-prepare-dataagentbench-fork-first).
+5. **MCP + databases:** Start Postgres/Mongo (and seed if required), then start the Toolbox — follow [step 4b](#4b-start-mcp-toolbox-for-oracle-forge-eval-docker-required) or run `.\scripts\mcp_up.ps1` on Windows. Confirm with `.\scripts\mcp_status.ps1` or the `curl` JSON-RPC check shown there.
+6. **Smoke checks:** From the repo root, run `python eval\run_dab_eval.py` with `DAB_TRIALS_PER_QUERY=1` in `.env` for a quick pass; optionally run `python run_injection_tests.py` to validate KB documents.
+
+For full DAB agent runs, OpenRouter-only config inside `DataAgentBench/`, and detailed troubleshooting, use [DataAgentBench Setup and Test Run](#dataagentbench-setup-and-test-run) and [Team Workflow for Agent Improvement](#team-workflow-for-agent-improvement).
+
+## Interactive agent (CLI and Streamlit)
+
+Use these after MCP Toolbox and databases are running and `.env` has your LLM keys (`ORACLE_FORGE_MOCK_MODE=false` for real data).
+
+### CLI (terminal)
+
+From the repo root:
+
+```bash
+python -m agent.chat_cli
+python -m agent.chat_cli --dbs postgresql
+```
+
+Type questions interactively; plain-language answers only (no query traces). Exit with an empty line, `/q`, or `exit`.
+
+### Streamlit UI (browser — “live agent” link)
+
+**Local (venv with `pip install -r requirements.txt`):**
+
+```bash
+streamlit run streamlit_app.py
+```
+
+Open **http://localhost:8501**. Optional: set `ORACLE_FORGE_STREAMLIT_DBS=postgresql` in `.env` to default the sidebar to PostgreSQL-only for Yelp-style analytics.
+
+**Docker (same Compose stack as MCP + Toolbox):**
+
+1. Ensure `.env` exists at the repo root (API keys, model, etc.).
+2. Start core services, then add the Streamlit profile:
+
+```bash
+docker compose -f mcp/docker-compose.yml up -d postgres mongo toolbox
+docker compose -f mcp/docker-compose.yml --profile ui up -d streamlit
+```
+
+3. Open **http://localhost:8501** (or `http://<server-ip>:8501` from another machine if the host firewall allows port 8501).
+
+The UI container sets `MCP_BASE_URL=http://toolbox:5000` and bind-mounts the repo to `/workspace` so `kb/` and local paths stay consistent with the Toolbox. **Important:** your `.env` may say `MCP_BASE_URL=http://localhost:5000` for host-side runs; inside Docker, process environment (e.g. `toolbox:5000`) must win, so the app loads `.env` with *merge-only* semantics and does not override `MCP_BASE_URL` when Compose already set it. For production or the public internet, put a reverse proxy with TLS in front of port 8501 and add authentication — do not expose the app or MCP port without controls.
+
 ## How It Works
 
 Every file in `kb/` is a self-contained document designed to be injected directly into an LLM context window. No RAG, no embeddings — documents are loaded by path and pasted as system context before query execution.
@@ -37,7 +102,10 @@ oracle-forge-data-agent/
 │   └── CHANGELOG.md                 # Version history
 │
 ├── planning/                        # Team planning documents
-├── requirements.txt                 # Python dependencies
+├── utils/                           # Shared agent utilities (see utils/README.md)
+├── streamlit_app.py                 # Browser UI (Streamlit) for the agent
+├── Dockerfile.streamlit             # Container image for Streamlit (Compose profile `ui`)
+├── requirements.txt                 # Python dependencies (includes streamlit)
 └── setup_groq_tests.sh              # API key setup + test quickstart
 ```
 
