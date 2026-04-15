@@ -88,8 +88,30 @@ _Each entry names the specific technical focus and intelligence gathered._
 | Technical Deep-Dive | X (Twitter) | Domain Knowledge | **External validation received.** @matanzutta replied to Kirubel's Dash v2 reply: "the gap between what the schema says and what the business actually means is where most agent queries go wrong" — non-coordinated practitioner restating our thesis verbatim. Highest-signal engagement of the week. | https://x.com/matanzutta/status/2043620994544239077 |
 | Community Participation | r/learnmachinelearning | Join Keys | New post: "Silent cross database join failures: has anyone dealt with int vs prefixed string ID mismatches?" Lead with failure mode (PG int ↔ Mongo "CUST-1234567"), asked community for OSS detection tools. | https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/silent_cross_database_join_failures_has_anyone/ |
 | Technical Deep-Dive | r/LocalLLaMA | Architecture, Domain Knowledge | Follow-up comment on own injection-testing thread: 21/21 pass on llama-3.1-8b-instant (sub-8B), linked INJECTION_TEST_LOG.md on repo for verification. Closes loop on u/matt-k-wong's question about whether the methodology generalizes below 70B. | https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/i_kept_running_into_cases_where_retrieval_was/ |
-| Community Reply | r/learnmachinelearning | Domain Knowledge | u/Far-Comparison-9745 reply on the original DAB failure modes thread asked the right question: how to automate learning domain rules (e.g., "active = last 90 days") never in the schema. Validates need for business_glossary.md + SME capture loop. Response drafted. | https://www.reddit.com/r/learnmachinelearning/comments/1sieo3g/comment/ofwrtgq/ |
+| ~~Community Reply~~ | ~~r/learnmachinelearning~~ | ~~Domain Knowledge~~ | ~~REMOVED: u/Far-Comparison-9745 was Kirubel's own second account, not external engagement~~ | -- |
 | Resource Acquisition | Internal | -- | Compiled Week 8 Engagement Portfolio (signal/week8_engagement_portfolio.md) for interim PDF inclusion. Drafted X thread 04 (integration milestone) for post-PR launch. | local |
+
+---
+
+## 2026-04-14 (Day 8 — Interim Submission Day)
+
+| Category | Platform | Technical Focus | Intelligence / Action | Link |
+|----------|----------|-----------------|----------------------|------|
+| Community Participation | r/LocalLLaMA (reply) | Multi-DB, Join Keys | Reply on SQL benchmark thread (text-to-SQL model comparison). Surfaced DAB join-key failure mode, normalize_join_key() pattern, suggested multi-DB routing + key normalization for v2. Referenced DAB paper. Account: u/Far-Comparison-9745 | https://www.reddit.com/r/LocalLLaMA/comments/1s7r9wu/comment/og3h2jx/ |
+| Community Participation | r/LocalLLaMA (reply) | Architecture, Domain Knowledge | Reply on email-to-structured-context thread (1M+ emails). Connected to injection testing (21/21 on 8B model), structured formats > prose finding, suggested pre-structuring before retrieval to reduce reasoning load. Account: u/Far-Comparison-9745 | https://www.reddit.com/r/LocalLLaMA/comments/1qg4d4t/comment/og3hnqv/ |
+| Community Participation | X Community: AI Agents | Multi-DB, Evaluation | Posted DAB 4 failure categories + context engineering framing in AI Agents community (14.7K members). Paper link included. | https://x.com/kirubeltewodro2/status/2043992602979221805 |
+| Community Participation | X Community: Machine Learning | Architecture, Domain Knowledge | Posted injection testing vs RAG finding (21/21 on 8B, tables > prose, density > context length) | https://x.com/kirubeltewodro2/status/2043994436850593947 |
+| Community Participation | X Community: AI/Python/Data | Join Keys, Multi-DB | Posted silent join key mismatch bug (PG INT vs Mongo "CUST-"), normalize_join_key() 6-line fix | https://x.com/kirubeltewodro2/status/2043995579647439321 |
+| Community Participation | X Community: Open Source Contributors | Join Keys, Multi-DB | Posted normalize_join_key() as open-source utility pattern for multi-DB agents. **Admin @jcubic replied asking if OSS — replied with repo link + engagement question.** | https://x.com/kirubeltewodro2/status/2043996542756106502 |
+| Community Participation | X Community: AI Agents | Multi-DB, Architecture | HOT TAKE: RAG is wrong for bounded data agents, "change my mind" engagement bait | https://x.com/kirubeltewodro2/status/2044017533683196221 |
+| Community Participation | X Community: Machine Learning | Evaluation, Architecture | 38% ceiling = context engineering, not model scaling. **@anandrishv replied asking topic — replied with DAB + info density explanation.** | https://x.com/kirubeltewodro2/status/2044017762004291818 |
+| Community Participation | X Community: AI/Python/Data | Unstructured Text | WHERE LIKE '%wait%' overcounts 3-4x horror story bait | https://x.com/kirubeltewodro2/status/2044039244964823216 |
+| Community Participation | X Community: Open Source Contributors | Architecture, Multi-DB | Open-sourced KB, 21 docs tested, PRs welcome + oracle-forge repo link | https://x.com/kirubeltewodro2/status/2044039490868564383 |
+| Community Participation | r/learnmachinelearning (reply) | Architecture, Domain Knowledge | Replied to 17yo building multi-agent behavior tracking system — shared injection testing methodology + date-anchored memory approach from our project | https://www.reddit.com/r/learnmachinelearning/comments/1s9z7xa/comment/og54mzw/ |
+| Community Participation | r/learnmachinelearning (reply) | Architecture | Replied to semantic chunking for RAG post — counter-positioned direct injection as bounded-domain alternative, cited 21/21 finding | https://www.reddit.com/r/learnmachinelearning/comments/1sd17ie/comment/og586f0/ |
+| Community Participation | r/LocalLLaMA (reply) | Architecture | Replied to EdgeVDB on-device vector DB announcement — connected to pre-structured doc injection testing | https://www.reddit.com/r/LocalLLaMA/comments/1sl3rtg/comment/og5aid8/ |
+| Community Reply | r/learnmachinelearning | Join Keys | u/This-You-2737 replied to own "Silent cross-DB join failures" post recommending Great Expectations + Scaylor Orchestrate. Replied back with KB injection testing as agent-native alternative to pipeline validation. | https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/ |
+| Community Participation | Discord: Hugging Face | Multi-DB, Join Keys | Posted cross-DB join question in #help-and-feedback (couldn't find #agents-course-questions). Asked about ID format mismatches across PG/MongoDB. | https://discord.com/channels/879548962464493619/1493606377367539712 |
 
 ---
 
@@ -108,7 +130,7 @@ _Each entry names the specific technical focus and intelligence gathered._
 
 ## Week 9 Status (as of 2026-04-13)
 - **Discord:** ✅ 3 servers joined (HF, EleutherAI, LlamaIndex). Substantive engagement Apr 14-16.
-- **Reddit replies:** Active — u/matt-k-wong thread continues, u/Far-Comparison-9745 reply received on original post.
+- **Reddit replies:** u/matt-k-wong thread (r/LocalLLaMA) is genuine external validation. Note: Silly-Effort-6843 posts removed by Reddit filters; active account is now Far-Comparison-9745.
 - **X reply-threading:** ✅ 5 placements delivered Apr 13. **External validation received from @matanzutta.**
 - **Unstructured text + Domain knowledge content:** Now well-represented (Tweet 2 + Tweet 5 deployed in real threads, @matanzutta validation on Domain Knowledge specifically).
 

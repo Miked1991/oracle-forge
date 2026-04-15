@@ -36,18 +36,15 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 | Date | Author | Title | Platform | Word Count | Link | Views |
 |------|--------|-------|----------|------------|------|-------|
 | 2026-04-10 | Kirubel | Engineering Resilience: Solving the Cross-Database Join Key Format Mismatch in AI Agents | Medium | ~1200 | [link](https://medium.com/@kirutew17654321/engineering-resilience-solving-the-cross-database-join-key-format-mismatch-in-ai-agents-ffb17b9d5a02) | -- |
-<<<<<<< HEAD
-| 2026-04-11 | Meseret | The Silent Killer of AI Data Agents (And How We're Engineering Around It) | LinkedIn | ~1800 | [link](https://www.linkedin.com/pulse/silent-killer-ai-data-agents-how-were-engineering-around-bolled-rsg8f ) | 52 |
-=======
-| 2026-04-11 | Meseret | The Silent Killer of AI Data Agents (And How We're Engineering Around It) | LinkedIn | -- | [link](https://www.linkedin.com/posts/meseret-bolled-8b395325b_aiengineering-dataengineering-aiagents-activity-7448667030389497856-bPq4) | -- |
+| 2026-04-11 | Meseret | The Silent Killer of AI Data Agents (And How We're Engineering Around It) | LinkedIn | ~1800 | [link](https://www.linkedin.com/pulse/silent-killer-ai-data-agents-how-were-engineering-around-bolled-rsg8f) | 52 |
+| 2026-04-14 | Kirubel | Why Your AI Data Agent Silently Fails on Cross-Database Queries | Medium | ~1500 | (published Apr 14) | -- |
 
->>>>>>> 4f11ad015e710bd545cf7d2af57d1489fd3a3f2d
 ### Reddit
 
 | Date | Author | Subreddit | Title | Link | Upvotes | Comments |
 |------|--------|-----------|-------|------|---------|----------|
-| 2026-04-11 | Kirubel | r/learnmachinelearning | DataAgentBench shows the best frontier model hits 38% on realistic multi-DB data queries - what's actually causing the failures? | [link](https://www.reddit.com/r/learnmachinelearning/comments/1sieo3g/dataagentbench_shows_the_best_frontier_model_hits/) | -- | 1 (u/Far-Comparison-9745 reply Apr 13) |
-| 2026-04-11 | Kirubel | r/LocalLLaMA | I kept running into cases where retrieval was the bottleneck -- injection testing with Groq Llama (21/21 pass rate) | [link](https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/i_kept_running_into_cases_where_retrieval_was/) | -- | 1 (u/matt-k-wong) |
+| 2026-04-11 | Kirubel | r/learnmachinelearning | DataAgentBench shows the best frontier model hits 38% on realistic multi-DB data queries - what's actually causing the failures? | [link](https://www.reddit.com/r/learnmachinelearning/comments/1sieo3g/dataagentbench_shows_the_best_frontier_model_hits/) | -- | ⚠️ POST REMOVED by Reddit filters (account: Silly-Effort-6843) |
+| 2026-04-11 | Kirubel | r/LocalLLaMA | I kept running into cases where retrieval was the bottleneck -- injection testing with Groq Llama (21/21 pass rate) | [link](https://www.reddit.com/r/LocalLLaMA/comments/1siqbda/i_kept_running_into_cases_where_retrieval_was/) | -- | ⚠️ POST REMOVED by Reddit filters (account: Silly-Effort-6843). u/matt-k-wong reply still visible but OP gone. |
 | 2026-04-13 | Kirubel | r/learnmachinelearning | Silent cross database join failures: has anyone dealt with int vs prefixed string ID mismatches? | [link](https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/silent_cross_database_join_failures_has_anyone/) | TBD | TBD |
 
 ### Reddit Replies (substantive comments in threads)
@@ -110,18 +107,37 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 | 2026-04-13 | Kirubel | Reply | Domain Knowledge Trap reply placement | [link](https://x.com/kirubeltewodro2/status/2043615424114200756) | TBD | TBD |
 | 2026-04-13 | Kirubel | Reply | Negation Problem reply placement | [link](https://x.com/kirubeltewodro2/status/2043616814421180639) | TBD | TBD |
 | 2026-04-13 | Kirubel | Reply | Negation Problem reply placement (under @0xcgn) | [link](https://x.com/kirubeltewodro2/status/2043618142870474802) | TBD | TBD |
+| 2026-04-14 | Kirubel | Community Post | AI Agents community (14.7K): DAB 4 failure categories, context engineering framing | [link](https://x.com/kirubeltewodro2/status/2043992602979221805) | TBD | TBD |
+| 2026-04-14 | Kirubel | Community Post | Machine Learning community: injection vs RAG, 21/21 on 8B, density > length | [link](https://x.com/kirubeltewodro2/status/2043994436850593947) | TBD | TBD |
+| 2026-04-14 | Kirubel | Community Post | AI/Python/Data community: silent join mismatch, normalize_join_key() | [link](https://x.com/kirubeltewodro2/status/2043995579647439321) | TBD | TBD |
+| 2026-04-14 | Kirubel | Community Post | Open Source Contributors: normalize_join_key() multi-DB utility | [link](https://x.com/kirubeltewodro2/status/2043996542756106502) | TBD | **Admin @jcubic replied asking if OSS** |
+| 2026-04-14 | Kirubel | Community Post | AI Agents: HOT TAKE — RAG is wrong architecture for data agents, "change my mind" | [link](https://x.com/kirubeltewodro2/status/2044017533683196221) | TBD | TBD |
+| 2026-04-14 | Kirubel | Community Post | Machine Learning: 38% ceiling isn't a model problem, it's context engineering | [link](https://x.com/kirubeltewodro2/status/2044017762004291818) | TBD | **@anandrishv replied asking topic — replied back with DAB + info density** |
+| 2026-04-14 | Kirubel | Community Post | AI/Python/Data: WHERE LIKE '%wait%' overcounts 3-4x, "worst horror story?" | [link](https://x.com/kirubeltewodro2/status/2044039244964823216) | TBD | TBD |
+| 2026-04-14 | Kirubel | Community Post | Open Source: open-sourced KB, 21 docs tested, PRs welcome + repo link | [link](https://x.com/kirubeltewodro2/status/2044039490868564383) | TBD | TBD |
 
 ### Medium/LinkedIn
 
 | Date | Author | Title | Platform | Word Count | Link | Views |
 |------|--------|-------|----------|------------|------|-------|
-| 2026-04-11 | Meseret | The Silent Killer of AI Data Agents (And How We're Engineering Around It) | LinkedIn | -- | [link](https://www.linkedin.com/posts/meseret-bolled-8b395325b_aiengineering-dataengineering-aiagents-activity-7448667030389497856-bPq4) | -- |
+| 2026-04-14 | Kirubel | Why Your AI Data Agent Silently Fails on Cross-Database Queries | Medium | ~1500 | (published Apr 14) | -- |
 
 ### Reddit
 
 | Date | Author | Subreddit | Title | Link | Upvotes | Comments |
 |------|--------|-----------|-------|------|---------|----------|
 | 2026-04-13 | Kirubel | r/learnmachinelearning | Silent cross database join failures: has anyone dealt with int vs prefixed string ID mismatches? | [link](https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/silent_cross_database_join_failures_has_anyone/) | TBD | TBD |
+
+### Reddit Replies (Week 9, account: u/Far-Comparison-9745)
+
+| Date | Author | Subreddit | Thread | Reply Summary | Link |
+|------|--------|-----------|--------|---------------|------|
+| 2026-04-14 | Kirubel | r/LocalLLaMA | SQL benchmark (text-to-SQL model comparison, 25 questions) | Praised benchmark, surfaced DAB join-key failure mode (normalize_join_key pattern), suggested multi-DB routing + key normalization for v2, referenced DAB paper | [reply](https://www.reddit.com/r/LocalLLaMA/comments/1s7r9wu/comment/og3h2jx/) |
+| 2026-04-14 | Kirubel | r/LocalLLaMA | Email-to-structured-context for AI agents (1M+ emails processed) | Connected to injection testing (21/21 on 8B), structured formats > prose at same context length, suggested pre-structuring before retrieval | [reply](https://www.reddit.com/r/LocalLLaMA/comments/1qg4d4t/comment/og3hnqv/) |
+| 2026-04-14 | Kirubel | r/LocalLLaMA | Why AI Coding Agents Waste Half Their Context Window | Shared package-level injection methodology (21/21 on 8B); argued structured manifests > raw code dumps for context density | [reply](https://www.reddit.com/r/LocalLLaMA/comments/1sh8q39/comment/ogp9zh4/) |
+| 2026-04-14 | Kirubel | r/learnmachinelearning | Multi-agent system for user behavior tracking (17yo builder) | Suggested date-anchored memory + injection testing methodology, linked DAB approach | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1s9z7xa/comment/og54mzw/) |
+| 2026-04-14 | Kirubel | r/learnmachinelearning | Semantic Chunking Pipelines for RAG | Counter-positioned direct injection as alternative for bounded domains, 21/21 finding | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1sd17ie/comment/og586f0/) |
+| 2026-04-14 | Kirubel | r/LocalLLaMA | EdgeVDB: On-Device Vector Database | Connected on-device search to bounded-domain injection testing, suggested pre-structured docs | [reply](https://www.reddit.com/r/LocalLLaMA/comments/1sl3rtg/comment/og5aid8/) |
 
 ---
 
@@ -134,7 +150,7 @@ _External responses or findings that changed the team's technical approach._
 | 2026-04-11 | r/MachineLearning | Posting blocked: account too new or karma too low for r/MachineLearning. Pivoted to r/learnmachinelearning | Adjusted community targeting. r/learnmachinelearning has lower barrier, still relevant audience. Will build karma for r/MachineLearning access in Week 9. |
 | 2026-04-11 | u/matt-k-wong (r/LocalLLaMA) | Validated "longer docs = lower quality" as universal LLM property; linked our injection test approach to Karpathy's wiki thesis | Reinforced Mikias's table-heavy, Q&A-anchored KB format; 21/21 injection test pass on llama-3.1-8b-instant (Apr 12) is a direct outcome |
 | 2026-04-13 | DAB official channels (GitHub + leaderboard site) | No official DAB Discord exists. UC Berkeley EPIC Lab + Hasura PromptQL route community through GitHub issues only | Cohort community strategy redirected to Hugging Face / EleutherAI / LlamaIndex Discords per Practitioner Manual guidance. Three Discords joined. |
-| 2026-04-13 | u/Far-Comparison-9745 (r/learnmachinelearning) | Asked the right question: how to capture domain rules never in schema (e.g., "active = last 90 days") | Validates need for `kb/domain/domain_terms/business_glossary.md` + SME capture loop; informs how we frame the domain knowledge story externally |
+| ~~2026-04-13~~ | ~~u/Far-Comparison-9745 (r/learnmachinelearning)~~ | ~~REMOVED: This was Kirubel's own second Reddit account, not external community engagement~~ | -- |
 | 2026-04-13 | @matanzutta on X (replied to Kirubel's Domain Knowledge Trap reply under @ashpreetbedi/Dash v2) | "the gap between what the schema says and what the business actually means is where most agent queries go wrong" — verbatim restatement of our Domain Knowledge thesis from a non-coordinated practitioner | **Strongest external validation in portfolio so far.** Confirms our framing lands with practitioners outside the cohort. Cite in final engagement summary and Week 9 X content. |
 
 ---
@@ -150,11 +166,16 @@ _External responses or findings that changed the team's technical approach._
 - **Reddit comments/replies:** 2 substantive (u/matt-k-wong validation thread + "550 Free LLM Tools" comment)
 - **Discord engagement:** Cohort class group (1, first-mover help) + 3 servers joined (HF, EleutherAI, LlamaIndex)
 
-### Week 9 In-Progress Totals (as of 2026-04-13)
-- **X reply-placements:** 5 (one received reply from @matanzutta validating thesis)
+### Week 9 In-Progress Totals (as of 2026-04-15)
+- **X reply-placements (Apr 13):** 5 (one received reply from @matanzutta validating thesis)
+- **X Community posts (Apr 14):** 8 across 4 communities (AI Agents, ML, AI/Python/Data, Open Source). 2 received practitioner replies (@jcubic, @anandrishv).
+- **X Communities joined:** 4 (AI Agents 14.7K, ML, AI/Python/Data, Open Source Contributors)
+- **Medium articles published (Week 9):** 1 (Kirubel, "Why Your AI Data Agent Silently Fails on Cross-Database Queries", Apr 14)
 - **Reddit posts:** 1 (new "Silent cross database join failures" post on r/learnmachinelearning)
-- **Reddit replies received:** 1 (u/Far-Comparison-9745 asking about automating domain rule capture)
-- **Discord servers joined:** 3 (substantive engagement deploying Apr 14-16)
+- **Reddit replies (Apr 14, deployed by Kirubel as u/Far-Comparison-9745):** 6 substantive replies on r/LocalLLaMA + r/learnmachinelearning
+- **Reddit replies received from external practitioners:** 1 (u/This-You-2737 on join-failures post recommending Great Expectations + Scaylor Orchestrate)
+- **Discord:** 3 servers joined (HF, EleutherAI, LlamaIndex). 1 substantive HF post on cross-DB join question.
+- **External validation logged:** 2 (@matanzutta thesis restatement Apr 13, u/This-You-2737 tooling exchange Apr 14)
 
 ### Accounts Tracked for Reply-Threading
 
