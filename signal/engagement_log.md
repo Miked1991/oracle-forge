@@ -122,18 +122,21 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 | 2026-04-14 | Kirubel | Community Post | Machine Learning: 38% ceiling isn't a model problem, it's context engineering | [link](https://x.com/kirubeltewodro2/status/2044017762004291818) | TBD | **@anandrishv replied asking topic — replied back with DAB + info density** |
 | 2026-04-14 | Kirubel | Community Post | AI/Python/Data: WHERE LIKE '%wait%' overcounts 3-4x, "worst horror story?" | [link](https://x.com/kirubeltewodro2/status/2044039244964823216) | TBD | TBD |
 | 2026-04-14 | Kirubel | Community Post | Open Source: open-sourced KB, 21 docs tested, PRs welcome + repo link | [link](https://x.com/kirubeltewodro2/status/2044039490868564383) | TBD | TBD |
+| 2026-04-15 | Kirubel | Thread | Article B launch thread: injection-testing method (21 docs, 13 iterations, 8B model) and bounded-domain argument against retrieval-first defaults | [link](https://x.com/kirubeltewodro2/status/2044376586380546117) | TBD | TBD |
 
 ### Medium/LinkedIn
 
 | Date | Author | Title | Platform | Word Count | Link | Views |
 |------|--------|-------|----------|------------|------|-------|
 | 2026-04-14 | Kirubel | Why Your AI Data Agent Silently Fails on Cross-Database Queries | Medium | ~1500 | (published Apr 14) | -- |
+| 2026-04-15 | Kirubel | We Injection-Tested 21 Knowledge Base Documents on an 8B Model. Here's What Actually Worked. | Medium | ~1600 | [link](https://medium.com/@kirutew17654321/we-injectiontested-21-knowledge-base-documents-on-an-8b-model-here-is-what-actually-worked-9fbc99b22ac8) | -- |
 
 ### Reddit
 
 | Date | Author | Subreddit | Title | Link | Upvotes | Comments |
 |------|--------|-----------|-------|------|---------|----------|
 | 2026-04-13 | Kirubel | r/learnmachinelearning | Silent cross database join failures: has anyone dealt with int vs prefixed string ID mismatches? | [link](https://www.reddit.com/r/learnmachinelearning/comments/1sknnoa/silent_cross_database_join_failures_has_anyone/) | TBD | TBD |
+| 2026-04-15 | Kirubel | r/LocalLLaMA | Stop dumping docs into RAG and praying — here's a direct-injection test approach that converged to 21/21 on 8B | [link](https://www.reddit.com/r/LocalLLaMA/comments/1sm4s0y/stop_dumping_docs_into_rag_and_praying_heres_a/) | TBD | TBD |
 
 
 ### Reddit Replies (Week 9, account: u/Far-Comparison-9745)
@@ -146,6 +149,7 @@ _Covers: X, Reddit, Medium, LinkedIn, Discord_
 | 2026-04-14 | Kirubel | r/learnmachinelearning | Multi-agent system for user behavior tracking (17yo builder) | Suggested date-anchored memory + injection testing methodology, linked DAB approach | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1s9z7xa/comment/og54mzw/) |
 | 2026-04-14 | Kirubel | r/learnmachinelearning | Semantic Chunking Pipelines for RAG | Counter-positioned direct injection as alternative for bounded domains, 21/21 finding | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1sd17ie/comment/og586f0/) |
 | 2026-04-14 | Kirubel | r/LocalLLaMA | EdgeVDB: On-Device Vector Database | Connected on-device search to bounded-domain injection testing, suggested pre-structured docs | [reply](https://www.reddit.com/r/LocalLLaMA/comments/1sl3rtg/comment/og5aid8/) |
+| 2026-04-15 | Kirubel | r/LocalLLaMA | Own post: Stop dumping docs into RAG and praying | Added clarifying follow-up on what the injection test validates (document usability, not retrieval quality) and where it breaks (unbounded corpora) | [reply](https://www.reddit.com/r/LocalLLaMA/comments/1sm4s0y/comment/ogbj572/) |
 | 2026-04-14 | Meseret | r/learnmachinelearning | Post asking about benchmark for reasoning stability in long LLM contexts | Answered with DAB reference: 54 queries across 4 DB types, 38% pass@1 ceiling, 40% of failures from incorrect planning compounding across steps. Referenced arxiv.org/abs/2603.20576. Connected to team's live experience building against DAB. | [reply](https://www.reddit.com/r/learnmachinelearning/comments/1slzhgy/multidatabase_query_in_agent/) |
 | 2026-04-14 | Meseret | r/LocalLLaMA | Posted question about silent failure in mid-chain multi-database queries | Post deleted by Reddit moderators before receiving replies. Question asked: when agent fails switching from PostgreSQL to MongoDB does it surface as error or silent wrong result? | -- |
 | 2026-04-15 | Meseret | r/learnmachinelearning | Posted the same question about silent failure in mid-chain multi-database queries | waiting for reply from the community. Question asked: when agent fails switching from PostgreSQL to MongoDB does it surface as error or silent wrong result? |[reply](https://www.reddit.com/r/learnmachinelearning/comments/1q9egkh/comment/og3jf00/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) |
@@ -184,9 +188,9 @@ _External responses or findings that changed the team's technical approach._
 - **X reply-placements (Apr 13):** 5 (one received reply from @matanzutta validating thesis)
 - **X Community posts (Apr 14):** 8 across 4 communities (AI Agents, ML, AI/Python/Data, Open Source). 2 received practitioner replies (@jcubic, @anandrishv).
 - **X Communities joined:** 4 (AI Agents 14.7K, ML, AI/Python/Data, Open Source Contributors)
-- **Medium articles published (Week 9):** 1 (Kirubel, "Why Your AI Data Agent Silently Fails on Cross-Database Queries", Apr 14)
-- **Reddit posts:** 2 (new "Silent cross database join failures" post on and silent failure in mid-chain multi-database queries  r/learnmachinelearning)
-- **Reddit replies (Apr 14, deployed by Kirubel as u/Far-Comparison-9745):** 6 substantive replies on r/LocalLLaMA + r/learnmachinelearning
+- **Medium articles published (Week 9):** 2 (Kirubel: Apr 14 + Apr 15)
+- **Reddit posts:** 3 (Kirubel: r/learnmachinelearning + r/LocalLLaMA; Meseret: r/learnmachinelearning)
+- **Reddit replies (Apr 14-15, deployed by Kirubel as u/Far-Comparison-9745):** 7 substantive replies on r/LocalLLaMA + r/learnmachinelearning
 - **Reddit replies received from external practitioners:** 1 (u/This-You-2737 on join-failures post recommending Great Expectations + Scaylor Orchestrate)
 - **Discord:** 3 servers joined (HF, EleutherAI, LlamaIndex). 1 substantive HF #general practitioner exchange (5 messages, ~57 min) with user H$Go on cross-DB joins, MCP discovery, KB injection testing, Level 1 vs Level 2 failure framing.
 - **Linkedin Second article:** Meseret-in progress
