@@ -1,0 +1,584 @@
+{
+  "schema_registry_version": "1.0",
+  "dataset_id": "yelp",
+  "built_at_utc": "2026-04-18T10:04:16.553676+00:00",
+  "sources": {
+    "datasets_config": "eval\\datasets.json"
+  },
+  "verified_joins": [],
+  "engines": {
+    "sqlite": {
+      "available": false,
+      "engine": "sqlite",
+      "skipped_reason": "sqlite_path_missing_or_unreadable",
+      "tables": [],
+      "collections": []
+    },
+    "duckdb": {
+      "available": true,
+      "engine": "duckdb",
+      "tables": [
+        {
+          "name": "review",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "review_id",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "user_id",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "business_ref",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "rating",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "useful",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "funny",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "cool",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "text",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "date",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [duckdb] table `review`: approximately 2,000 rows. no primary key in metadata. Key fields: review_id, user_id, business_ref, rating, useful, funny, cool, text, date. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 2000
+        },
+        {
+          "name": "tip",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "user_id",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "business_ref",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "text",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "date",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "compliment_count",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [duckdb] table `tip`: approximately 784 rows. no primary key in metadata. Key fields: user_id, business_ref, text, date, compliment_count. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 784
+        },
+        {
+          "name": "user",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "user_id",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "name",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "yelping_since",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "useful",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "funny",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "cool",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "elite",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [duckdb] table `user`: approximately 1,999 rows. no primary key in metadata. Key fields: user_id, name, review_count, yelping_since, useful, funny, cool, elite. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 1999
+        }
+      ],
+      "collections": []
+    },
+    "postgresql": {
+      "available": true,
+      "engine": "postgresql",
+      "tables": [
+        {
+          "name": "business",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "description",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "is_open",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "attributes",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "hours",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "state_code",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "accepts_credit_cards",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "has_wifi",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "primary_categories",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "business_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [postgresql] table `business`: approximately 100 rows. primary key on (business_id). Key fields: business_id, name, description, review_count, is_open, attributes, hours, state_code, accepts_credit_cards, has_wifi, primary_categories. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 100
+        },
+        {
+          "name": "business_category",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "category",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            }
+          ],
+          "primary_key": [
+            "business_id",
+            "category"
+          ],
+          "foreign_keys": [
+            {
+              "columns": [
+                "business_id"
+              ],
+              "referenced_table": "business",
+              "referenced_columns": [
+                "business_id"
+              ]
+            }
+          ],
+          "intent_summary": "Dataset `yelp` — [postgresql] table `business_category`: approximately 486 rows. primary key on (business_id, category). 1 foreign-key hint(s) in metadata. Key fields: business_id, category. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 486
+        },
+        {
+          "name": "review",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "review_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "stars",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "date",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "text",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "review_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [postgresql] table `review`: approximately 2,000 rows. primary key on (review_id). Key fields: review_id, user_id, business_id, stars, date, text. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 2000
+        },
+        {
+          "name": "user",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "yelping_since",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "useful",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "funny",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "cool",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "elite",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "user_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [postgresql] table `user`: approximately 1,999 rows. primary key on (user_id). Key fields: user_id, name, review_count, yelping_since, useful, funny, cool, elite. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 1999
+        }
+      ],
+      "collections": []
+    },
+    "mongodb": {
+      "available": true,
+      "engine": "mongodb",
+      "tables": [],
+      "collections": [
+        {
+          "name": "business",
+          "kind": "collection",
+          "columns": [
+            {
+              "name": "_id",
+              "data_type": "ObjectId",
+              "nullable": true,
+              "is_primary_key": true
+            },
+            {
+              "name": "attributes",
+              "data_type": "dict",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "business_id",
+              "data_type": "str",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "description",
+              "data_type": "str",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "hours",
+              "data_type": "dict",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "is_open",
+              "data_type": "int",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "name",
+              "data_type": "str",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "int",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [mongodb] collection `business`: approximately 100 rows. primary key on (_id). Key fields: _id, attributes, business_id, description, hours, is_open, name, review_count. Document collection for nested or text-heavy fields; filter and aggregate in Mongo pipelines.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 100
+        },
+        {
+          "name": "checkin",
+          "kind": "collection",
+          "columns": [
+            {
+              "name": "_id",
+              "data_type": "ObjectId",
+              "nullable": true,
+              "is_primary_key": true
+            },
+            {
+              "name": "business_id",
+              "data_type": "str",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "date",
+              "data_type": "str",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `yelp` — [mongodb] collection `checkin`: approximately 90 rows. primary key on (_id). Key fields: _id, business_id, date. Document collection for nested or text-heavy fields; filter and aggregate in Mongo pipelines.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 90
+        }
+      ],
+      "collections_empty": false
+    }
+  },
+  "provenance": [
+    {
+      "engine": "duckdb",
+      "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_yelp\\query_dataset\\yelp_user.db",
+      "introspected_at_utc": "2026-04-18T10:04:16.455901+00:00",
+      "duration_ms": 29,
+      "status": "ok",
+      "error": null,
+      "table_count": 3
+    },
+    {
+      "engine": "postgresql",
+      "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+      "introspected_at_utc": "2026-04-18T10:04:16.538857+00:00",
+      "duration_ms": 82,
+      "status": "ok",
+      "error": null,
+      "table_count": 4
+    },
+    {
+      "engine": "mongodb",
+      "database": "yelp_db",
+      "introspected_at_utc": "2026-04-18T10:04:16.553636+00:00",
+      "duration_ms": 13,
+      "status": "ok",
+      "error": null,
+      "collection_count": 2
+    }
+  ],
+  "freshness": {
+    "registry_built_at_utc": "2026-04-18T10:04:16.553679+00:00",
+    "per_engine": [
+      {
+        "engine": "duckdb",
+        "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_yelp\\query_dataset\\yelp_user.db",
+        "introspected_at_utc": "2026-04-18T10:04:16.455901+00:00",
+        "duration_ms": 29,
+        "status": "ok",
+        "error": null,
+        "table_count": 3
+      },
+      {
+        "engine": "postgresql",
+        "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+        "introspected_at_utc": "2026-04-18T10:04:16.538857+00:00",
+        "duration_ms": 82,
+        "status": "ok",
+        "error": null,
+        "table_count": 4
+      },
+      {
+        "engine": "mongodb",
+        "database": "yelp_db",
+        "introspected_at_utc": "2026-04-18T10:04:16.553636+00:00",
+        "duration_ms": 13,
+        "status": "ok",
+        "error": null,
+        "collection_count": 2
+      }
+    ]
+  },
+  "dataset_intent_summary": "Registry for benchmark dataset `yelp`: combined schema from all reachable engines. Engine overview: duckdb: review, tip, user | postgresql: business, business_category, review, user | mongodb: business, checkin"
+}

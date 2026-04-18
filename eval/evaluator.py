@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 import re
 import time
 from pathlib import Path
@@ -36,22 +37,27 @@ class OracleForgeEvaluator:
             if correct:
                 passed += 1
             trace = outcome.get("query_trace", outcome.get("trace", []))
-            per_query.append(
-                {
-                    "query_id": query_case.get("id", f"query_{idx}"),
-                    "dataset": query_case.get("dataset"),
-                    "input_query": question,
-                    "generated_query": outcome.get("predicted_queries", []),
-                    "tool_calls": trace,
-                    "closed_loop": outcome.get("closed_loop"),
-                    "execution_time_ms": duration_ms,
-                    "result": outcome.get("answer"),
-                    "correctness": "pass" if correct else "fail",
-                    "validation_message": validation[1],
-                    "failure_category": None if correct else self._classify_failure(query_case, outcome),
-                    "architecture_disclosure": outcome.get("architecture_disclosure", {}),
-                }
-            )
+            row: Dict[str, Any] = {
+                "query_id": query_case.get("id", f"query_{idx}"),
+                "dataset": query_case.get("dataset"),
+                "input_query": question,
+                "generated_query": outcome.get("predicted_queries", []),
+                "tool_calls": trace,
+                "closed_loop": outcome.get("closed_loop"),
+                "execution_time_ms": duration_ms,
+                "result": outcome.get("answer"),
+                "correctness": "pass" if correct else "fail",
+                "validation_message": validation[1],
+                "failure_category": None if correct else self._classify_failure(query_case, outcome),
+                "architecture_disclosure": outcome.get("architecture_disclosure", {}),
+            }
+            if os.getenv("ORACLE_FORGE_EVAL_PIPELINE_DEBUG", "").strip().lower() in {"1", "true", "yes", "on"}:
+                from utils.pipeline_debug_snapshot import extract_pipeline_debug
+
+                row["pipeline_debug"] = extract_pipeline_debug(
+                    outcome, schema_info=query_case.get("schema_info", {})
+                )
+            per_query.append(row)
             sentinel_payload = {
                 "query_id": query_case.get("id", f"query_{idx}"),
                 "closed_loop": outcome.get("closed_loop"),

@@ -10,36 +10,51 @@ row dumps (e.g. generic LIMIT queries), you get a short notice instead of JSON.
 Usage (from repo root, with `.env` and MCP up):
 
     python -m agent.chat_cli
-    python -m agent.chat_cli --dbs postgresql
+    python -m agent.chat_cli --dbs postgresql,mongodb,duckdb
+    python -m agent.chat_cli --dataset-id yelp --dbs postgresql,mongodb,duckdb
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
-from typing import Dict, List
+from pathlib import Path
+from typing import Dict, List, Optional
+
+from dotenv import load_dotenv
 
 from agent.user_facing_format import format_answer_plain
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
 
 # Cap stored turns so prompts stay bounded (each turn = user + assistant message).
 _MAX_HISTORY_MESSAGES = 24
 
 
 def main() -> None:
+    load_dotenv(_REPO_ROOT / ".env", override=True)
     parser = argparse.ArgumentParser(description="Interactive Oracle Forge query CLI (plain answers only)")
     parser.add_argument(
         "--dbs",
         default="postgresql,mongodb,sqlite,duckdb",
-        help="Comma-separated backends this session may use (same as agent.main --dbs)",
+        help="Comma-separated backends this session may use (same as eval/query_agent_concise --dbs)",
+    )
+    parser.add_argument(
+        "--dataset-id",
+        default="",
+        metavar="KEY",
+        help="Optional dataset profile key (e.g. yelp); same as run_agent dataset_id / eval --dataset-id",
     )
     args = parser.parse_args()
     databases = [x.strip() for x in args.dbs.split(",") if x.strip()]
+    dataset_id: Optional[str] = (args.dataset_id or "").strip() or None
 
     from agent.main import run_agent  # noqa: PLC0415
 
     history: List[Dict[str, str]] = []
 
-    print("Oracle Forge — type a question (empty line, /q, or exit to stop).\n")
+    ds_note = f" [dataset_id={dataset_id}]" if dataset_id else ""
+    print(f"Oracle Forge — type a question (empty line, /q, or exit to stop).{ds_note}\n")
 
     while True:
         try:
@@ -55,6 +70,7 @@ def main() -> None:
             databases,
             {},
             conversation_history=history or None,
+            dataset_id=dataset_id,
         )
         print(format_answer_plain(result))
         print()

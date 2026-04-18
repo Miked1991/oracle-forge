@@ -37,6 +37,9 @@ jobs:
       - name: Run tests
         run: pytest tests/ -q --tb=short
 
+      - name: Verify interactive query CLI entry point
+        run: python -m agent.chat_cli --help
+
   docker-streamlit:
     name: Docker (Streamlit image)
     runs-on: ubuntu-latest

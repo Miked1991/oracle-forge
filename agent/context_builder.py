@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 
 from utils.dataset_playbooks import load_dataset_playbook
 from utils.schema_bundle import build_schema_bundle, schema_bundle_json
+from utils.schema_registry.kb_generator import authoritative_kb_file_path, authoritative_kb_relative_path
 
 from .utils import canonical_db_name
 
@@ -76,30 +77,63 @@ class ContextBuilder:
         join_mappings = layers["v2_domain"].get("domain/joins/join_key_mappings.md", "")
         failure_log = layers["v3_corrections"].get("corrections/failure_log.md", "")
         resolved = layers["v3_corrections"].get("corrections/resolved_patterns.md", "")
+
+        authoritative_layer: Dict[str, str] = {}
+        auth_path = None
+        if dataset_id and str(dataset_id).strip():
+            auth_path = authoritative_kb_file_path(str(dataset_id).strip(), self.repo_root)
+            if auth_path.is_file():
+                rel = authoritative_kb_relative_path(str(dataset_id).strip())
+                authoritative_layer[rel] = auth_path.read_text(encoding="utf-8")
+
+        context_layers: Dict[str, Any] = {
+            **layers,
+            "schema_metadata": schema_layer,
+            "domain_institutional": domain_layer,
+            "interaction_memory": interaction_layer,
+        }
+        if authoritative_layer:
+            context_layers["authoritative_registry"] = authoritative_layer
+
         return {
             "question": question,
             "dataset_id": dataset_id,
             "dataset_playbook": dataset_playbook,
             "schema_bundle": schema_bundle,
             "schema_bundle_json": schema_bundle_json(schema_bundle),
-            "context_layers": {
-                **layers,
-                "schema_metadata": schema_layer,
-                "domain_institutional": domain_layer,
-                "interaction_memory": interaction_layer,
-            },
+            "context_layers": context_layers,
             "schema_metadata": schema_metadata,
             "schema_patterns": self._extract_schema_patterns(layers["v2_domain"]),
             "join_key_rules": self._extract_join_key_rules(join_mappings),
             "known_failures": self._extract_known_failures(failure_log),
             "resolved_patterns": self._extract_resolved_patterns(resolved),
             "runtime_corrections": self._load_runtime_corrections(),
+            "kb_generation": {
+                "authoritative_registry_path": str(auth_path) if auth_path else None,
+                "authoritative_registry_loaded": bool(authoritative_layer),
+                "hint_if_missing": (
+                    "Run: python -m scripts.generate_kb_from_registry --dataset <dataset_id>"
+                    if dataset_id and str(dataset_id).strip() and not authoritative_layer
+                    else None
+                ),
+            },
+            "kb_trust_tiers": {
+                "authoritative": ["authoritative_registry", "schema_metadata"],
+                "advisory": ["v1_architecture", "v2_domain", "domain_institutional"],
+                "interaction_memory": ["v3_corrections", "interaction_memory"],
+            },
             "layer_usage_contract": {
-                "schema_metadata": "database schema introspection and metadata constraints",
-                "domain_institutional": "business definitions, institutional conventions, join guidance",
+                "authoritative_registry": (
+                    "AUTHORITATIVE — machine-generated from artifacts/schema_registry; source of truth for "
+                    "identifiers (tables, columns, collections)"
+                ),
+                "schema_metadata": "AUTHORITATIVE — runtime MCP/schema introspection snapshot merged for tools",
+                "domain_institutional": (
+                    "ADVISORY — institutional docs (join hints, glossary); must not override authoritative_registry"
+                ),
                 "interaction_memory": "corrections, known failures, and successful strategies",
-                "v1_architecture": "tool selection and routing constraints",
-                "v2_domain": "schema understanding, terms, id formatting",
+                "v1_architecture": "ADVISORY — tool selection and routing patterns",
+                "v2_domain": "ADVISORY — legacy markdown schema snippets; prefer authoritative_registry when both exist",
                 "v3_corrections": "failure-driven replanning and retries",
             },
         }

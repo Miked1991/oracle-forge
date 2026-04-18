@@ -42,8 +42,16 @@ class TokenLimiter:
         if self.estimate_tokens(serialized) <= self.max_prompt_tokens:
             return layers
 
-        # Priority: keep schema/domain first, then corrections/history.
-        ordered = ["schema_metadata", "domain_institutional", "interaction_memory", "v1_architecture", "v2_domain", "v3_corrections"]
+        # Priority: authoritative registry first, then runtime schema, domain, corrections.
+        ordered = [
+            "authoritative_registry",
+            "schema_metadata",
+            "domain_institutional",
+            "interaction_memory",
+            "v1_architecture",
+            "v2_domain",
+            "v3_corrections",
+        ]
         remaining_tokens = self.max_prompt_tokens
         trimmed: Dict[str, Dict[str, str]] = {}
 

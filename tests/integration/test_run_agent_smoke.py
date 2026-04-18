@@ -23,6 +23,7 @@ def _fake_openrouter_plan(self, question, available_databases, context):
         query_hints={},
         model="openai/gpt-4o-mini",
         used_llm=True,
+        selected_tables={dbs[0]: []} if dbs else {},
     )
 
 
@@ -58,3 +59,5 @@ def test_run_agent_contract_includes_extended_fields(mock_mcp_env: None, mock_op
     assert "plan" in out
     assert "validation_status" in out
     assert "predicted_queries" in out
+    assert "database_results" in out
+    assert isinstance(out.get("database_results"), list)

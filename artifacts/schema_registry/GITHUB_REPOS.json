@@ -1,0 +1,578 @@
+{
+  "schema_registry_version": "1.0",
+  "dataset_id": "GITHUB_REPOS",
+  "built_at_utc": "2026-04-18T10:03:59.058834+00:00",
+  "sources": {
+    "datasets_config": "eval\\datasets.json"
+  },
+  "verified_joins": [],
+  "engines": {
+    "sqlite": {
+      "available": true,
+      "engine": "sqlite",
+      "tables": [
+        {
+          "name": "languages",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "repo_name",
+              "data_type": "TEXT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "language_description",
+              "data_type": "TEXT",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [sqlite] table `languages`: approximately 3,325,634 rows. no primary key in metadata. Key fields: repo_name, language_description. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 3325634
+        },
+        {
+          "name": "licenses",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "repo_name",
+              "data_type": "TEXT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "license",
+              "data_type": "TEXT",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [sqlite] table `licenses`: approximately 3,325,634 rows. no primary key in metadata. Key fields: repo_name, license. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 3325634
+        },
+        {
+          "name": "repos",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "repo_name",
+              "data_type": "TEXT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "watch_count",
+              "data_type": "INTEGER",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [sqlite] table `repos`: approximately 400,000 rows. no primary key in metadata. Key fields: repo_name, watch_count. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 400000
+        }
+      ],
+      "collections": []
+    },
+    "duckdb": {
+      "available": true,
+      "engine": "duckdb",
+      "tables": [
+        {
+          "name": "commits",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "commit",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "tree",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "parent",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "author",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "committer",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "subject",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "message",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "trailer",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "difference",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "difference_truncated",
+              "data_type": "DOUBLE",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "repo_name",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "encoding",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [duckdb] table `commits`: approximately 17,976 rows. no primary key in metadata. Key fields: commit, tree, parent, author, committer, subject, message, trailer, difference, difference_truncated, repo_name, encoding. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 17976
+        },
+        {
+          "name": "contents",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "id",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "content",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "sample_repo_name",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "sample_ref",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "sample_path",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "sample_symlink_target",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "repo_data_description",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [duckdb] table `contents`: approximately 24,286 rows. no primary key in metadata. Key fields: id, content, sample_repo_name, sample_ref, sample_path, sample_symlink_target, repo_data_description. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 24286
+        },
+        {
+          "name": "files",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "repo_name",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "ref",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "path",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "mode",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "id",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "symlink_target",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [duckdb] table `files`: approximately 524,077 rows. no primary key in metadata. Key fields: repo_name, ref, path, mode, id, symlink_target. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 524077
+        }
+      ],
+      "collections": []
+    },
+    "postgresql": {
+      "available": true,
+      "engine": "postgresql",
+      "tables": [
+        {
+          "name": "business",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "description",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "is_open",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "attributes",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "hours",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "state_code",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "accepts_credit_cards",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "has_wifi",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "primary_categories",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "business_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [postgresql] table `business`: approximately 100 rows. primary key on (business_id). Key fields: business_id, name, description, review_count, is_open, attributes, hours, state_code, accepts_credit_cards, has_wifi, primary_categories. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 100
+        },
+        {
+          "name": "business_category",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "category",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            }
+          ],
+          "primary_key": [
+            "business_id",
+            "category"
+          ],
+          "foreign_keys": [
+            {
+              "columns": [
+                "business_id"
+              ],
+              "referenced_table": "business",
+              "referenced_columns": [
+                "business_id"
+              ]
+            }
+          ],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [postgresql] table `business_category`: approximately 486 rows. primary key on (business_id, category). 1 foreign-key hint(s) in metadata. Key fields: business_id, category. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 486
+        },
+        {
+          "name": "review",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "review_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "stars",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "date",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "text",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "review_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [postgresql] table `review`: approximately 2,000 rows. primary key on (review_id). Key fields: review_id, user_id, business_id, stars, date, text. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 2000
+        },
+        {
+          "name": "user",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "yelping_since",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "useful",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "funny",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "cool",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "elite",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "user_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `GITHUB_REPOS` — [postgresql] table `user`: approximately 1,999 rows. primary key on (user_id). Key fields: user_id, name, review_count, yelping_since, useful, funny, cool, elite. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 1999
+        }
+      ],
+      "collections": []
+    },
+    "mongodb": {
+      "available": false,
+      "engine": "mongodb",
+      "skipped_reason": "mongodb_database_not_configured_in_eval_datasets_json",
+      "tables": [],
+      "collections": []
+    }
+  },
+  "provenance": [
+    {
+      "engine": "sqlite",
+      "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_GITHUB_REPOS\\query_dataset\\repo_metadata.db",
+      "introspected_at_utc": "2026-04-18T10:03:58.936929+00:00",
+      "duration_ms": 2009,
+      "status": "ok",
+      "error": null,
+      "table_count": 3
+    },
+    {
+      "engine": "duckdb",
+      "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_GITHUB_REPOS\\query_dataset\\repo_artifacts.db",
+      "introspected_at_utc": "2026-04-18T10:03:58.970005+00:00",
+      "duration_ms": 32,
+      "status": "ok",
+      "error": null,
+      "table_count": 3
+    },
+    {
+      "engine": "postgresql",
+      "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+      "introspected_at_utc": "2026-04-18T10:03:59.057757+00:00",
+      "duration_ms": 86,
+      "status": "ok",
+      "error": null,
+      "table_count": 4
+    }
+  ],
+  "freshness": {
+    "registry_built_at_utc": "2026-04-18T10:03:59.058843+00:00",
+    "per_engine": [
+      {
+        "engine": "sqlite",
+        "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_GITHUB_REPOS\\query_dataset\\repo_metadata.db",
+        "introspected_at_utc": "2026-04-18T10:03:58.936929+00:00",
+        "duration_ms": 2009,
+        "status": "ok",
+        "error": null,
+        "table_count": 3
+      },
+      {
+        "engine": "duckdb",
+        "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_GITHUB_REPOS\\query_dataset\\repo_artifacts.db",
+        "introspected_at_utc": "2026-04-18T10:03:58.970005+00:00",
+        "duration_ms": 32,
+        "status": "ok",
+        "error": null,
+        "table_count": 3
+      },
+      {
+        "engine": "postgresql",
+        "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+        "introspected_at_utc": "2026-04-18T10:03:59.057757+00:00",
+        "duration_ms": 86,
+        "status": "ok",
+        "error": null,
+        "table_count": 4
+      }
+    ]
+  },
+  "dataset_intent_summary": "Registry for benchmark dataset `GITHUB_REPOS`: combined schema from all reachable engines. Engine overview: sqlite: languages, licenses, repos | duckdb: commits, contents, files | postgresql: business, business_category, review, user"
+}

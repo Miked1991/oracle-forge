@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 _MAX_SQL_LEN = int(os.getenv("ORACLE_FORGE_MAX_SQL_CHARS", "12000"))
@@ -328,6 +329,27 @@ def _validate_sql_columns(
     return True, "ok"
 
 
+def _mongo_lookup_collections(pipeline: Any) -> List[str]:
+    """Collection names referenced by ``$lookup.from`` (lowercase)."""
+    out: List[str] = []
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            lk = node.get("$lookup")
+            if isinstance(lk, dict):
+                frm = lk.get("from")
+                if isinstance(frm, str) and frm.strip():
+                    out.append(frm.strip().lower())
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for x in node:
+                walk(x)
+
+    walk(pipeline)
+    return out
+
+
 def validate_sql(
     database: str,
     sql: str,
@@ -356,6 +378,11 @@ def validate_sql(
     ok_td, msg_td = _validate_text_column_vs_date_literal(database, s, schema_metadata)
     if not ok_td:
         return False, msg_td
+    from utils.registry_join_validation import validate_sql_join_registry
+
+    ok_j, msg_j, _detail = validate_sql_join_registry(database, s, schema_metadata)
+    if not ok_j:
+        return False, msg_j
     return True, "ok"
 
 
@@ -374,6 +401,10 @@ def validate_mongo_pipeline(
     allowed = _allowed_collections_for_db(database, schema_metadata)
     if _strict_allowlist() and allowed and collection.strip().lower() not in allowed:
         return False, f"unknown_collection:{collection}"
+    if _strict_allowlist() and allowed:
+        for c in _mongo_lookup_collections(pipeline):
+            if c not in allowed:
+                return False, f"unknown_lookup_collection:{c}"
     raw = json.dumps(pipeline)
     if re.search(r"\$where\b", raw) and '"$where"' in raw:
         return False, "where_clause_not_allowed"
@@ -412,13 +443,34 @@ def llm_raw_step_to_validator_step(raw: Dict[str, Any]) -> Optional[Dict[str, An
 def validate_llm_generated_steps(
     raw_steps: List[Any],
     schema_metadata: Dict[str, Any],
+    *,
+    validation_log_repo_root: Optional[Path] = None,
+    validation_log_question: Optional[str] = None,
+    validation_log_dataset_id: Optional[str] = None,
 ) -> Tuple[bool, List[str]]:
     """
     Validate LLM ``steps`` list (before mapping to PlanStep). Returns (all_ok, error_messages).
+
+    When ``validation_log_repo_root`` is set, appends one JSON line to
+    ``logs/pre_execution_validator.jsonl`` (disable with ``ORACLE_FORGE_PREEXEC_VALIDATION_LOG=false``).
     """
     errors: List[str] = []
     if not isinstance(raw_steps, list):
-        return False, ["steps_not_a_list"]
+        errs = ["steps_not_a_list"]
+        if validation_log_repo_root is not None:
+            from utils.pre_execution_validation_log import append_pre_execution_validation_log
+
+            append_pre_execution_validation_log(
+                validation_log_repo_root,
+                {
+                    "question": (validation_log_question or "")[:4000],
+                    "dataset_id": validation_log_dataset_id,
+                    "all_ok": False,
+                    "errors": errs,
+                    "step_count": 0,
+                },
+            )
+        return False, errs
     for i, raw in enumerate(raw_steps):
         step = llm_raw_step_to_validator_step(raw if isinstance(raw, dict) else {})
         if step is None:
@@ -427,7 +479,21 @@ def validate_llm_generated_steps(
         ok, msg = validate_step_payload(step, schema_metadata)
         if not ok:
             errors.append(f"step {i + 1} ({step.get('database')}): {msg}")
-    return (len(errors) == 0, errors)
+    all_ok = len(errors) == 0
+    if validation_log_repo_root is not None:
+        from utils.pre_execution_validation_log import append_pre_execution_validation_log
+
+        append_pre_execution_validation_log(
+            validation_log_repo_root,
+            {
+                "question": (validation_log_question or "")[:4000],
+                "dataset_id": validation_log_dataset_id,
+                "all_ok": all_ok,
+                "errors": errors,
+                "step_count": len(raw_steps),
+            },
+        )
+    return (all_ok, errors)
 
 
 def validate_step_payload(

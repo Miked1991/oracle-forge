@@ -7,6 +7,7 @@ import copy
 import json
 import logging
 import os
+import threading
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -76,12 +77,24 @@ def _sqlite_columns(path: Path, table: str) -> Dict[str, str]:
         con.close()
 
 
+def _duckdb_enrich_timeout_sec() -> Optional[float]:
+    """Seconds per table for DuckDB introspection; ``None`` = no timeout (can hang on bad paths)."""
+    raw = os.getenv("ORACLE_FORGE_DUCKDB_ENRICH_TIMEOUT_SEC", "25").strip()
+    if raw.lower() in {"", "0", "none", "off", "false"}:
+        return None
+    try:
+        return max(0.5, float(raw))
+    except ValueError:
+        return 25.0
+
+
 def _duckdb_columns(path: Path, table: str) -> Dict[str, str]:
     import duckdb
 
     ident = f'"{table}"' if table.lower() == "user" else table
-    con = duckdb.connect(str(path), read_only=True)
+    con = None
     try:
+        con = duckdb.connect(str(path), read_only=True)
         rows = con.execute(f"DESCRIBE {ident}").fetchall()
         out: Dict[str, str] = {}
         for r in rows:
@@ -89,7 +102,50 @@ def _duckdb_columns(path: Path, table: str) -> Dict[str, str]:
             out[str(r[0])] = str(r[1] if len(r) > 1 else "")
         return out
     finally:
-        con.close()
+        if con is not None:
+            try:
+                con.close()
+            except Exception:
+                pass
+
+
+def _duckdb_columns_maybe_timed(path: Path, table: str) -> Dict[str, str]:
+    """
+    Run DuckDB introspection with optional timeout.
+
+    Uses a daemon thread + ``join(timeout=…)`` so we do not block forever on ``duckdb.connect``.
+    If the call times out, the worker thread may still be running in the background (daemon);
+    prefer ``ORACLE_FORGE_DUCKDB_SCHEMA_ENRICH=false`` if the file path is unusable.
+    """
+    timeout = _duckdb_enrich_timeout_sec()
+    if timeout is None:
+        return _duckdb_columns(path, table)
+
+    box: List[Any] = []
+
+    def _target() -> None:
+        try:
+            box.append(_duckdb_columns(path, table))
+        except BaseException as exc:  # noqa: BLE001 — propagate from worker
+            box.append(exc)
+
+    t = threading.Thread(target=_target, daemon=True)
+    t.start()
+    t.join(timeout=timeout)
+    if t.is_alive():
+        _logger.warning(
+            "duckdb schema enrich timed out after %ss for table %r (path=%s); skipping. "
+            "Set ORACLE_FORGE_DUCKDB_SCHEMA_ENRICH=false or fix DUCKDB_PATH.",
+            timeout,
+            table,
+            path,
+        )
+        return {}
+    if not box:
+        return {}
+    if isinstance(box[0], BaseException):
+        raise box[0]
+    return box[0] if isinstance(box[0], dict) else {}
 
 
 def _mongo_collection_fields(uri: str, database: str, collection: str, sample_limit: int = 50) -> Dict[str, str]:
@@ -210,6 +266,13 @@ def enrich_schema_metadata_columns(
         meta.setdefault("sqlite", {})["tables"] = tables
 
     def _run_duck() -> None:
+        if os.getenv("ORACLE_FORGE_DUCKDB_SCHEMA_ENRICH", "true").strip().lower() not in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }:
+            return
         if not duck_path or not duck_path.exists() or "duckdb" not in selected:
             return
         dbmeta = meta.get("duckdb") or {}
@@ -221,7 +284,7 @@ def enrich_schema_metadata_columns(
             if not tname or not _needs_fields(item):
                 continue
             try:
-                cols = _duckdb_columns(duck_path, tname)
+                cols = _duckdb_columns_maybe_timed(duck_path, tname)
                 if cols:
                     tables[i] = _merge_item_fields(item, cols)
             except Exception:
@@ -258,18 +321,12 @@ def rebuild_schema_bundle_context(
     context: Dict[str, Any],
     available_databases: List[str],
     dataset_id: Optional[str],
+    repo_root: Optional[Path] = None,
 ) -> None:
-    """Update context schema_bundle and JSON after metadata mutation."""
-    from utils.schema_bundle import build_schema_bundle, schema_bundle_json
+    """Update context schema_bundle and JSON after metadata mutation (Phase 4: table-scoped when routing provides tables)."""
+    from pathlib import Path as P
 
-    sm = context.get("schema_metadata") or {}
-    pb = context.get("dataset_playbook")
-    playbook_arg = pb if isinstance(pb, dict) and pb else None
-    bundle = build_schema_bundle(sm, available_databases, dataset_id, playbook=playbook_arg)
-    context["schema_bundle"] = bundle
-    context["schema_bundle_json"] = schema_bundle_json(bundle)
-    layer = context.get("context_layers")
-    if isinstance(layer, dict):
-        sm_layer = layer.get("schema_metadata")
-        if isinstance(sm_layer, dict) and "runtime/schema_metadata.json" in sm_layer:
-            sm_layer["runtime/schema_metadata.json"] = json.dumps(sm, ensure_ascii=False)
+    from utils.scoped_schema_pack import rebuild_with_scoped_pack
+
+    root = repo_root or P(__file__).resolve().parents[1]
+    rebuild_with_scoped_pack(context, available_databases, dataset_id, repo_root=root)

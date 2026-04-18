@@ -11,6 +11,8 @@ from .llm_query_generator import LLMQueryGenerator
 from .utils import canonical_db_name
 from utils.dataset_playbooks import playbook_engine_table_preferences, playbook_mongo_primary_collection
 from utils.execution_hints import enrich_replan_notes
+from utils.preexec_repair_log import append_preexec_repair_log, preexec_repair_max_attempts
+from utils.preexec_repair_notes import build_preexec_failure_notes
 from utils.query_router import QueryRouter
 from utils.routing_policy import normalize_routing_selection
 
@@ -86,32 +88,83 @@ class QueryPlanner:
             selected = self._select_databases(route_l, available)
         steps: List[PlanStep] = []
         gen_snapshot: Optional[Dict[str, Any]] = None
+        preexec_repair_trace: List[Dict[str, Any]] = []
         if _llm_sql_enabled():
             gen = LLMQueryGenerator(self._repo_root)
-            gen_out = gen.generate_steps(
-                question, selected, self.context, replan_notes=replan_notes
-            )
-            if isinstance(gen_out, dict):
-                gen_snapshot = gen_out
-            if isinstance(gen_out, dict) and gen_out.get("schema_gate_failed"):
-                blocked: Dict[str, Any] = {
-                    "question": question,
-                    "plan_type": "schema_blocked",
-                    "requires_join": False,
-                    "kb_layers_used": ["v1_architecture", "v2_domain", "v3_corrections"],
-                    "routing_constraints": self._routing_constraints(),
-                    "steps": [],
-                    "schema_gate_failed": True,
-                    "gate_detail": str(gen_out.get("gate_detail") or "need_schema_refresh"),
-                }
-                qp = _query_pipeline_from_generator(gen_out)
-                if qp:
-                    blocked["query_pipeline"] = qp
-                return blocked
-            if gen_out and isinstance(gen_out.get("steps"), list):
-                llm_steps = self._plan_steps_from_llm(question, route_l, selected, gen_out["steps"])
-                if llm_steps:
-                    steps = llm_steps
+            repair_notes: List[str] = list(replan_notes or [])
+            max_repairs = preexec_repair_max_attempts()
+            gen_out: Optional[Dict[str, Any]] = None
+            for attempt in range(max_repairs + 1):
+                gen_out = gen.generate_steps(
+                    question, selected, self.context, replan_notes=repair_notes or None
+                )
+                if isinstance(gen_out, dict):
+                    gen_snapshot = gen_out
+                resolved = False
+                if isinstance(gen_out, dict) and not gen_out.get("schema_gate_failed") and not gen_out.get(
+                    "generation_failed"
+                ):
+                    raw_steps = gen_out.get("steps")
+                    if isinstance(raw_steps, list) and raw_steps:
+                        llm_steps = self._plan_steps_from_llm(question, route_l, selected, raw_steps)
+                        if llm_steps:
+                            steps = llm_steps
+                            resolved = True
+                append_preexec_repair_log(
+                    self._repo_root,
+                    {
+                        "phase": "preexec_repair",
+                        "attempt_index": attempt,
+                        "max_attempts": max_repairs + 1,
+                        "resolved": resolved,
+                        "had_schema_gate_failed": bool(isinstance(gen_out, dict) and gen_out.get("schema_gate_failed")),
+                        "had_generation_failed": bool(isinstance(gen_out, dict) and gen_out.get("generation_failed")),
+                        "gate_detail": (
+                            str(gen_out.get("gate_detail", ""))[:1500] if isinstance(gen_out, dict) else None
+                        ),
+                        "repair_notes_count": len(repair_notes),
+                        "question": question[:400],
+                    },
+                )
+                preexec_repair_trace.append(
+                    {
+                        "attempt": attempt,
+                        "resolved": resolved,
+                        "schema_gate_failed": bool(isinstance(gen_out, dict) and gen_out.get("schema_gate_failed")),
+                        "generation_failed": bool(isinstance(gen_out, dict) and gen_out.get("generation_failed")),
+                    }
+                )
+                if resolved:
+                    break
+                if attempt < max_repairs:
+                    repair_notes.extend(build_preexec_failure_notes(gen_out, self.context))
+                    if not isinstance(gen_out, dict) or (
+                        gen_out.get("steps") and not resolved
+                    ):
+                        repair_notes.append(
+                            "preexec:steps_present_but_plan_mapping_failed: cover every selected database with a valid step."
+                        )
+                    continue
+                if isinstance(gen_out, dict) and (
+                    gen_out.get("schema_gate_failed") or gen_out.get("generation_failed")
+                ):
+                    blocked: Dict[str, Any] = {
+                        "question": question,
+                        "plan_type": "schema_blocked",
+                        "requires_join": False,
+                        "kb_layers_used": ["v1_architecture", "v2_domain", "v3_corrections"],
+                        "routing_constraints": self._routing_constraints(),
+                        "steps": [],
+                        "schema_gate_failed": True,
+                        "generation_failed": bool(gen_out.get("generation_failed")),
+                        "gate_detail": str(gen_out.get("gate_detail") or "need_schema_refresh"),
+                        "preexec_repair_exhausted": True,
+                        "preexec_repair_trace": preexec_repair_trace,
+                    }
+                    qp = _query_pipeline_from_generator(gen_out)
+                    if qp:
+                        blocked["query_pipeline"] = qp
+                    return blocked
         if not steps:
             for index, db in enumerate(selected, start=1):
                 dialect = "mongodb_aggregation" if db == "mongodb" else "sql"
@@ -137,6 +190,8 @@ class QueryPlanner:
         qp = _query_pipeline_from_generator(gen_snapshot)
         if qp:
             plan_out["query_pipeline"] = qp
+        if preexec_repair_trace:
+            plan_out["preexec_repair_trace"] = preexec_repair_trace
         return plan_out
 
     def execute_closed_loop(

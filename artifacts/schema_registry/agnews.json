@@ -1,0 +1,426 @@
+{
+  "schema_registry_version": "1.0",
+  "dataset_id": "agnews",
+  "built_at_utc": "2026-04-18T10:04:01.691884+00:00",
+  "sources": {
+    "datasets_config": "eval\\datasets.json"
+  },
+  "verified_joins": [],
+  "engines": {
+    "sqlite": {
+      "available": false,
+      "engine": "sqlite",
+      "skipped_reason": "sqlite_path_missing_or_unreadable",
+      "tables": [],
+      "collections": []
+    },
+    "duckdb": {
+      "available": true,
+      "engine": "duckdb",
+      "tables": [
+        {
+          "name": "article_metadata",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "article_id",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": true
+            },
+            {
+              "name": "author_id",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "region",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "publication_date",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "article_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `agnews` — [duckdb] table `article_metadata`: approximately 127,600 rows. primary key on (article_id). Key fields: article_id, author_id, region, publication_date. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 127600
+        },
+        {
+          "name": "authors",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "author_id",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "author_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `agnews` — [duckdb] table `authors`: approximately 994 rows. primary key on (author_id). Key fields: author_id, name. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 994
+        }
+      ],
+      "collections": []
+    },
+    "postgresql": {
+      "available": true,
+      "engine": "postgresql",
+      "tables": [
+        {
+          "name": "business",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "description",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "is_open",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "attributes",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "hours",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "state_code",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "accepts_credit_cards",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "has_wifi",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "primary_categories",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "business_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `agnews` — [postgresql] table `business`: approximately 100 rows. primary key on (business_id). Key fields: business_id, name, description, review_count, is_open, attributes, hours, state_code, accepts_credit_cards, has_wifi, primary_categories. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 100
+        },
+        {
+          "name": "business_category",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "category",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            }
+          ],
+          "primary_key": [
+            "business_id",
+            "category"
+          ],
+          "foreign_keys": [
+            {
+              "columns": [
+                "business_id"
+              ],
+              "referenced_table": "business",
+              "referenced_columns": [
+                "business_id"
+              ]
+            }
+          ],
+          "intent_summary": "Dataset `agnews` — [postgresql] table `business_category`: approximately 486 rows. primary key on (business_id, category). 1 foreign-key hint(s) in metadata. Key fields: business_id, category. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 486
+        },
+        {
+          "name": "review",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "review_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "stars",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "date",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "text",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "review_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `agnews` — [postgresql] table `review`: approximately 2,000 rows. primary key on (review_id). Key fields: review_id, user_id, business_id, stars, date, text. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 2000
+        },
+        {
+          "name": "user",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "yelping_since",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "useful",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "funny",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "cool",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "elite",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "user_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `agnews` — [postgresql] table `user`: approximately 1,999 rows. primary key on (user_id). Key fields: user_id, name, review_count, yelping_since, useful, funny, cool, elite. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 1999
+        }
+      ],
+      "collections": []
+    },
+    "mongodb": {
+      "available": true,
+      "engine": "mongodb",
+      "tables": [],
+      "collections": [
+        {
+          "name": "articles",
+          "kind": "collection",
+          "columns": [
+            {
+              "name": "_id",
+              "data_type": "ObjectId",
+              "nullable": true,
+              "is_primary_key": true
+            },
+            {
+              "name": "article_id",
+              "data_type": "int",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "description",
+              "data_type": "str",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "title",
+              "data_type": "str",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `agnews` — [mongodb] collection `articles`: approximately 127,600 rows. primary key on (_id). Key fields: _id, article_id, description, title. Document collection for nested or text-heavy fields; filter and aggregate in Mongo pipelines.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 127600
+        }
+      ],
+      "collections_empty": false
+    }
+  },
+  "provenance": [
+    {
+      "engine": "duckdb",
+      "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_agnews\\query_dataset\\metadata.db",
+      "introspected_at_utc": "2026-04-18T10:04:01.457972+00:00",
+      "duration_ms": 114,
+      "status": "ok",
+      "error": null,
+      "table_count": 2
+    },
+    {
+      "engine": "postgresql",
+      "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+      "introspected_at_utc": "2026-04-18T10:04:01.535212+00:00",
+      "duration_ms": 76,
+      "status": "ok",
+      "error": null,
+      "table_count": 4
+    },
+    {
+      "engine": "mongodb",
+      "database": "articles_db",
+      "introspected_at_utc": "2026-04-18T10:04:01.691825+00:00",
+      "duration_ms": 61,
+      "status": "ok",
+      "error": null,
+      "collection_count": 1
+    }
+  ],
+  "freshness": {
+    "registry_built_at_utc": "2026-04-18T10:04:01.691888+00:00",
+    "per_engine": [
+      {
+        "engine": "duckdb",
+        "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_agnews\\query_dataset\\metadata.db",
+        "introspected_at_utc": "2026-04-18T10:04:01.457972+00:00",
+        "duration_ms": 114,
+        "status": "ok",
+        "error": null,
+        "table_count": 2
+      },
+      {
+        "engine": "postgresql",
+        "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+        "introspected_at_utc": "2026-04-18T10:04:01.535212+00:00",
+        "duration_ms": 76,
+        "status": "ok",
+        "error": null,
+        "table_count": 4
+      },
+      {
+        "engine": "mongodb",
+        "database": "articles_db",
+        "introspected_at_utc": "2026-04-18T10:04:01.691825+00:00",
+        "duration_ms": 61,
+        "status": "ok",
+        "error": null,
+        "collection_count": 1
+      }
+    ]
+  },
+  "dataset_intent_summary": "Registry for benchmark dataset `agnews`: combined schema from all reachable engines. Engine overview: duckdb: article_metadata, authors | postgresql: business, business_category, review, user | mongodb: articles"
+}

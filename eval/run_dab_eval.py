@@ -16,6 +16,7 @@ if str(ROOT) not in sys.path:
 
 from agent.main import run_agent
 from eval.evaluator import OracleForgeEvaluator
+from utils.pipeline_debug_snapshot import extract_pipeline_debug
 
 
 def _parse_per_dataset_arg(raw: Optional[str]) -> Optional[int]:
@@ -94,12 +95,34 @@ def build_parser() -> argparse.ArgumentParser:
         default=int(os.getenv("DAB_TRIALS_PER_QUERY", "50")),
         help="Trials per query (default: env DAB_TRIALS_PER_QUERY or 50).",
     )
+    parser.add_argument(
+        "--max-queries",
+        type=int,
+        default=None,
+        metavar="N",
+        help="After loading queries, run only the first N (default: all). Useful for quick smoke evals.",
+    )
+    parser.add_argument(
+        "--pipeline-debug",
+        action="store_true",
+        help="Phase 9: on trial 1 only, attach pipeline_debug to that trial (larger results.json).",
+    )
+    parser.add_argument(
+        "--no-duckdb-enrich",
+        action="store_true",
+        help=(
+            "Skip live DuckDB column introspection during schema enrich (sets "
+            "ORACLE_FORGE_DUCKDB_SCHEMA_ENRICH=false). Use when eval hangs in duckdb.connect / DESCRIBE."
+        ),
+    )
     return parser
 
 
 def main() -> None:
     load_dotenv(ROOT / ".env", override=True)
     args = build_parser().parse_args()
+    if getattr(args, "no_duckdb_enrich", False):
+        os.environ["ORACLE_FORGE_DUCKDB_SCHEMA_ENRICH"] = "false"
     eval_root = ROOT / "eval"
     eval_root.mkdir(parents=True, exist_ok=True)
     trials = max(1, args.trials)
@@ -114,6 +137,9 @@ def main() -> None:
         per_dataset=per_dataset,
         datasets_csv=args.datasets,
     )
+    if args.max_queries is not None and args.max_queries > 0:
+        queries = queries[: args.max_queries]
+        run_meta["max_queries"] = args.max_queries
 
     all_query_reports: List[Dict[str, Any]] = []
     total_first_correct = 0
@@ -139,21 +165,24 @@ def main() -> None:
             if valid:
                 total_trial_correct += 1
             total_trials += 1
-            trials_report.append(
-                {
-                    "trial": trial + 1,
-                    "correct": bool(valid),
-                    "eval_correct": bool(valid),
-                    "validation_message": message,
-                    "status": result.get("status"),
-                    "answer": result.get("answer"),
-                    "confidence": result.get("confidence"),
-                    "closed_loop": result.get("closed_loop"),
-                    "query_trace": result.get("query_trace", result.get("trace", [])),
-                    "token_usage": result.get("token_usage", {}),
-                    "used_databases": result.get("used_databases", []),
-                }
-            )
+            trial_row: Dict[str, Any] = {
+                "trial": trial + 1,
+                "correct": bool(valid),
+                "eval_correct": bool(valid),
+                "validation_message": message,
+                "status": result.get("status"),
+                "answer": result.get("answer"),
+                "confidence": result.get("confidence"),
+                "closed_loop": result.get("closed_loop"),
+                "query_trace": result.get("query_trace", result.get("trace", [])),
+                "token_usage": result.get("token_usage", {}),
+                "used_databases": result.get("used_databases", []),
+            }
+            if args.pipeline_debug and trial == 0:
+                trial_row["pipeline_debug"] = extract_pipeline_debug(
+                    result, schema_info=query.get("schema_info", {})
+                )
+            trials_report.append(trial_row)
 
         if first_correct:
             total_first_correct += 1

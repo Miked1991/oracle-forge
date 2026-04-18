@@ -13,6 +13,7 @@ from utils.dataset_profiles import load_dataset_profile, pop_profile_env, push_p
 from utils.question_plan_alignment import plan_aligns_with_question
 from utils.schema_column_enricher import enrich_schema_metadata_columns, rebuild_schema_bundle_context
 from utils.schema_introspection_tool import SchemaIntrospectionTool
+from utils.execution_merge_log import append_execution_merge_log, truncate_tool_preview
 from utils.token_limiter import TokenLimiter
 
 from .context_builder import ContextBuilder
@@ -42,6 +43,25 @@ def _merge_outputs(step_outputs: List[Dict[str, Any]], trace: List[Dict[str, Any
     successful_data = [entry.get("data", []) for entry in ok_entries]
     normalized = [rows if isinstance(rows, list) else [] for rows in successful_data]
     if not normalized:
+        return []
+
+    if len(ok_entries) == 1:
+        rows0 = normalized[0]
+        if rows0:
+            trace.append(
+                {
+                    "merge_strategy": "single_db",
+                    "row_count": len(rows0),
+                    "database": ok_entries[0].get("database", ""),
+                }
+            )
+            return rows0
+        trace.append(
+            {
+                "merge_strategy": "empty",
+                "merge_failure_reason": "single_successful_step_returned_zero_rows",
+            }
+        )
         return []
 
     merged = normalized[0]
@@ -267,6 +287,7 @@ def _routing_failure_response(
         "semantic_alignment": {"ok": False, "reason": "llm_routing_failed"},
         "merge_info": None,
         "metrics": {},
+        "database_results": [],
         "confidence": 0.0,
         "tools_discovered_count": tools_discovered_count,
         "mock_mode": effective_mock_mode,
@@ -408,6 +429,7 @@ def run_agent(
             )
         context["llm_guidance"] = {
             "selected_databases": llm_guidance.selected_databases,
+            "selected_tables": getattr(llm_guidance, "selected_tables", None) or {},
             "rationale": llm_guidance.rationale,
             "query_hints": llm_guidance.query_hints,
             "model": llm_guidance.model,
@@ -430,7 +452,7 @@ def run_agent(
             mongo_database=mongo_db,
         )
         context["schema_metadata"] = schema_metadata
-        rebuild_schema_bundle_context(context, available_databases, dataset_id)
+        rebuild_schema_bundle_context(context, available_databases, dataset_id, repo_root=repo_root)
         planner = QueryPlanner(context)
         plan: Dict[str, Any] = {}
         sandbox = SandboxClient(enabled=True)
@@ -557,6 +579,7 @@ def run_agent(
                 "error_type": err_type,
                 "error_summary": safe_errors,
                 "predicted_queries": predicted_queries,
+                "database_results": [],
                 "architecture_disclosure": {
                     "mcp_tools_used": [entry.get("tool") for entry in used_databases],
                     "kb_layers_accessed": ["v1_architecture", "v2_domain", "v3_corrections"],
@@ -591,6 +614,29 @@ def run_agent(
         metrics = compute_metrics(merged_records)
         answer = _answer_from_metrics(question, metrics, merged_records)
         answer = _shape_answer_for_eval(answer, merged_records, question)
+
+        merge_strategies = [e for e in trace if isinstance(e, dict) and e.get("merge_strategy")]
+        append_execution_merge_log(
+            repo_root,
+            {
+                "question": question[:2000],
+                "dataset_id": dataset_id,
+                "merge_strategy_events": merge_strategies[-5:],
+                "tool_results_summary": truncate_tool_preview(
+                    [
+                        {
+                            "ok": x.get("ok"),
+                            "database": x.get("database"),
+                            "error_type": x.get("error_type"),
+                            "row_count": len(x.get("data", [])) if isinstance(x.get("data"), list) else None,
+                        }
+                        for x in tool_results
+                    ],
+                    max_chars=8000,
+                ),
+                "shaped_answer_preview": truncate_tool_preview(answer, max_chars=6000),
+            },
+        )
         # Semantic linter (same as query_pipeline.semantic_lint_plan)
         align_ok, align_reason = plan_aligns_with_question(
             question, plan, dataset_playbook=context.get("dataset_playbook")
@@ -607,12 +653,25 @@ def run_agent(
             (e for e in reversed(trace) if isinstance(e, dict) and e.get("merge_strategy")),
             None,
         )
+        database_results: List[Dict[str, Any]] = []
+        for r in tool_results:
+            if not r.get("ok"):
+                continue
+            data = r.get("data")
+            database_results.append(
+                {
+                    "database": r.get("database"),
+                    "row_count": len(data) if isinstance(data, list) else None,
+                    "rows": data,
+                }
+            )
         response = {
             "status": "success" if not explicit_failure else "failure",
             "question": question,
             "dataset_id": dataset_id,
             "merge_info": merge_info,
             "answer": answer,
+            "database_results": database_results,
             "closed_loop": loop_meta,
             "metrics": metrics,
             "confidence": confidence,
@@ -671,7 +730,7 @@ def run_agent_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
         conversation_history=payload.get("conversation_history"),
         dataset_id=payload.get("dataset_id") or payload.get("dataset"),
     )
-    return {
+    out: Dict[str, Any] = {
         "answer": result.get("answer"),
         "query_trace": result.get("query_trace", result.get("trace", [])),
         "confidence": result.get("confidence", 0.0),
@@ -686,7 +745,18 @@ def run_agent_contract(payload: Dict[str, Any]) -> Dict[str, Any]:
         "error_type": result.get("error_type"),
         "metrics": result.get("metrics"),
         "predicted_queries": result.get("predicted_queries"),
+        "database_results": result.get("database_results"),
     }
+    want_debug = payload.get("include_pipeline_debug")
+    if want_debug is None:
+        from utils.pipeline_debug_snapshot import pipeline_debug_enabled
+
+        want_debug = pipeline_debug_enabled()
+    if want_debug:
+        from utils.pipeline_debug_snapshot import extract_pipeline_debug
+
+        out["pipeline_debug"] = extract_pipeline_debug(result, schema_info=schema_info)
+    return out
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Oracle Forge agent runner")

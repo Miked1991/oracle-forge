@@ -1,0 +1,525 @@
+{
+  "schema_registry_version": "1.0",
+  "dataset_id": "DEPS_DEV_V1",
+  "built_at_utc": "2026-04-18T10:03:56.921403+00:00",
+  "sources": {
+    "datasets_config": "eval\\datasets.json"
+  },
+  "verified_joins": [],
+  "engines": {
+    "sqlite": {
+      "available": true,
+      "engine": "sqlite",
+      "tables": [
+        {
+          "name": "project_info",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "Project_Information",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Licenses",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Description",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Homepage",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "OSSFuzz",
+              "data_type": "DOUBLE",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `DEPS_DEV_V1` — [sqlite] table `project_info`: approximately 770 rows. no primary key in metadata. Key fields: Project_Information, Licenses, Description, Homepage, OSSFuzz. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 770
+        },
+        {
+          "name": "project_packageversion",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "System",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Name",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Version",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "ProjectType",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "ProjectName",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "RelationProvenance",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "RelationType",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `DEPS_DEV_V1` — [sqlite] table `project_packageversion`: approximately 597,602 rows. no primary key in metadata. Key fields: System, Name, Version, ProjectType, ProjectName, RelationProvenance, RelationType. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 597602
+        }
+      ],
+      "collections": [],
+      "native_storage_engine": "duckdb",
+      "note": "Path was listed as sqlite_path but file is not SQLite; schema was read with DuckDB."
+    },
+    "duckdb": {
+      "available": true,
+      "engine": "duckdb",
+      "tables": [
+        {
+          "name": "packageinfo",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "System",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Name",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Version",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Licenses",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Links",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Advisories",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "VersionInfo",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Hashes",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "DependenciesProcessed",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "DependencyError",
+              "data_type": "BIGINT",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "UpstreamPublishedAt",
+              "data_type": "DOUBLE",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Registries",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "SLSAProvenance",
+              "data_type": "DOUBLE",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "UpstreamIdentifiers",
+              "data_type": "VARCHAR",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "Purl",
+              "data_type": "DOUBLE",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `DEPS_DEV_V1` — [duckdb] table `packageinfo`: approximately 661,372 rows. no primary key in metadata. Key fields: System, Name, Version, Licenses, Links, Advisories, VersionInfo, Hashes, DependenciesProcessed, DependencyError, UpstreamPublishedAt, Registries, SLSAProvenance, UpstreamIdentifiers, Purl. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 661372
+        }
+      ],
+      "collections": []
+    },
+    "postgresql": {
+      "available": true,
+      "engine": "postgresql",
+      "tables": [
+        {
+          "name": "business",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "description",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "is_open",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "attributes",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "hours",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "state_code",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "accepts_credit_cards",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "has_wifi",
+              "data_type": "boolean",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "primary_categories",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "business_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `DEPS_DEV_V1` — [postgresql] table `business`: approximately 100 rows. primary key on (business_id). Key fields: business_id, name, description, review_count, is_open, attributes, hours, state_code, accepts_credit_cards, has_wifi, primary_categories. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 100
+        },
+        {
+          "name": "business_category",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "category",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            }
+          ],
+          "primary_key": [
+            "business_id",
+            "category"
+          ],
+          "foreign_keys": [
+            {
+              "columns": [
+                "business_id"
+              ],
+              "referenced_table": "business",
+              "referenced_columns": [
+                "business_id"
+              ]
+            }
+          ],
+          "intent_summary": "Dataset `DEPS_DEV_V1` — [postgresql] table `business_category`: approximately 486 rows. primary key on (business_id, category). 1 foreign-key hint(s) in metadata. Key fields: business_id, category. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 486
+        },
+        {
+          "name": "review",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "review_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "business_id",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "stars",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "date",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "text",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "review_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `DEPS_DEV_V1` — [postgresql] table `review`: approximately 2,000 rows. primary key on (review_id). Key fields: review_id, user_id, business_id, stars, date, text. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 2000
+        },
+        {
+          "name": "user",
+          "kind": "table",
+          "columns": [
+            {
+              "name": "user_id",
+              "data_type": "text",
+              "nullable": false,
+              "is_primary_key": true
+            },
+            {
+              "name": "name",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "review_count",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "yelping_since",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "useful",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "funny",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "cool",
+              "data_type": "integer",
+              "nullable": true,
+              "is_primary_key": false
+            },
+            {
+              "name": "elite",
+              "data_type": "text",
+              "nullable": true,
+              "is_primary_key": false
+            }
+          ],
+          "primary_key": [
+            "user_id"
+          ],
+          "foreign_keys": [],
+          "intent_summary": "Dataset `DEPS_DEV_V1` — [postgresql] table `user`: approximately 1,999 rows. primary key on (user_id). Key fields: user_id, name, review_count, yelping_since, useful, funny, cool, elite. Relational table for SQL joins, filters, and aggregates.",
+          "intent_summary_pending": false,
+          "row_count_estimate": 1999
+        }
+      ],
+      "collections": []
+    },
+    "mongodb": {
+      "available": false,
+      "engine": "mongodb",
+      "skipped_reason": "mongodb_database_not_configured_in_eval_datasets_json",
+      "tables": [],
+      "collections": []
+    }
+  },
+  "provenance": [
+    {
+      "engine": "sqlite",
+      "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_DEPS_DEV_V1\\query_dataset\\project_query.db",
+      "introspected_at_utc": "2026-04-18T10:03:54.105938+00:00",
+      "duration_ms": 747,
+      "status": "ok",
+      "error": null,
+      "table_count": 2,
+      "resolved_via": "duckdb_reader"
+    },
+    {
+      "engine": "duckdb",
+      "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_DEPS_DEV_V1\\query_dataset\\package_query.db",
+      "introspected_at_utc": "2026-04-18T10:03:56.808131+00:00",
+      "duration_ms": 2701,
+      "status": "ok",
+      "error": null,
+      "table_count": 1
+    },
+    {
+      "engine": "postgresql",
+      "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+      "introspected_at_utc": "2026-04-18T10:03:56.920221+00:00",
+      "duration_ms": 83,
+      "status": "ok",
+      "error": null,
+      "table_count": 4
+    }
+  ],
+  "freshness": {
+    "registry_built_at_utc": "2026-04-18T10:03:56.921411+00:00",
+    "per_engine": [
+      {
+        "engine": "sqlite",
+        "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_DEPS_DEV_V1\\query_dataset\\project_query.db",
+        "introspected_at_utc": "2026-04-18T10:03:54.105938+00:00",
+        "duration_ms": 747,
+        "status": "ok",
+        "error": null,
+        "table_count": 2,
+        "resolved_via": "duckdb_reader"
+      },
+      {
+        "engine": "duckdb",
+        "path": "D:\\FDE-Training\\oracle-forge\\DataAgentBench\\query_DEPS_DEV_V1\\query_dataset\\package_query.db",
+        "introspected_at_utc": "2026-04-18T10:03:56.808131+00:00",
+        "duration_ms": 2701,
+        "status": "ok",
+        "error": null,
+        "table_count": 1
+      },
+      {
+        "engine": "postgresql",
+        "dsn": "postgresql://postgres:***@localhost:5432/oracleforge",
+        "introspected_at_utc": "2026-04-18T10:03:56.920221+00:00",
+        "duration_ms": 83,
+        "status": "ok",
+        "error": null,
+        "table_count": 4
+      }
+    ]
+  },
+  "dataset_intent_summary": "Registry for benchmark dataset `DEPS_DEV_V1`: combined schema from all reachable engines. Engine overview: sqlite: project_info, project_packageversion | duckdb: packageinfo | postgresql: business, business_category, review, user"
+}

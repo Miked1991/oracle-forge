@@ -1,64 +1,48 @@
 {
-  "comment": "Per-dataset connection overrides (DURABLE_FIX_PLAN Phase C). Paths relative to repo root. Missing files are ignored; utils.dataset_profiles.discover_dab_connection_paths fills from DataAgentBench/query_<id>/query_dataset/*.db when present.",
+  "comment": "Per-dataset connection overrides. Paths relative to repo root. Include mongodb_database only for benchmarks that actually use MongoDB (see DataAgentBench/query_*/db_config.yaml); omit it for SQL/DuckDB-only datasets so schema registry does not probe a wrong DB.",
   "datasets": {
     "yelp": {
       "mongodb_database": "yelp_db",
-      "sqlite_path": "DataAgentBench/query_yelp/query_dataset/yelp_mongo.db",
       "duckdb_path": "DataAgentBench/query_yelp/query_dataset/yelp_user.db"
     },
     "agnews": {
-      "mongodb_database": "agnews_db",
-      "sqlite_path": "DataAgentBench/query_agnews/query_dataset/agnews_mongo.db",
-      "duckdb_path": "DataAgentBench/query_agnews/query_dataset/agnews_user.db"
+      "mongodb_database": "articles_db",
+      "duckdb_path": "DataAgentBench/query_agnews/query_dataset/metadata.db"
     },
     "bookreview": {
-      "sqlite_path": "DataAgentBench/query_bookreview/query_dataset/review_query.db",
-      "duckdb_path": "DataAgentBench/query_bookreview/query_dataset/review_user.db"
+      "sqlite_path": "DataAgentBench/query_bookreview/query_dataset/review_query.db"
     },
     "DEPS_DEV_V1": {
-      "mongodb_database": "deps_dev_v1_db",
-      "sqlite_path": "DataAgentBench/query_DEPS_DEV_V1/query_dataset/deps_sqlite.db",
-      "duckdb_path": "DataAgentBench/query_DEPS_DEV_V1/query_dataset/deps_user.db"
+      "sqlite_path": "DataAgentBench/query_DEPS_DEV_V1/query_dataset/project_query.db",
+      "duckdb_path": "DataAgentBench/query_DEPS_DEV_V1/query_dataset/package_query.db"
     },
     "crmarenapro": {
-      "mongodb_database": "crmarenapro_db",
-      "duckdb_path": "DataAgentBench/query_crmarenapro/query_dataset/crmarena_user.db",
-      "sqlite_path": "DataAgentBench/query_crmarenapro/query_dataset/crmarena_sqlite.db"
+      "sqlite_path": "DataAgentBench/query_crmarenapro/query_dataset/core_crm.db",
+      "duckdb_path": "DataAgentBench/query_crmarenapro/query_dataset/products_orders.db"
     },
     "GITHUB_REPOS": {
-      "mongodb_database": "github_repos_db",
-      "duckdb_path": "DataAgentBench/query_GITHUB_REPOS/query_dataset/github_user.db",
-      "sqlite_path": "DataAgentBench/query_GITHUB_REPOS/query_dataset/github_sqlite.db"
+      "sqlite_path": "DataAgentBench/query_GITHUB_REPOS/query_dataset/repo_metadata.db",
+      "duckdb_path": "DataAgentBench/query_GITHUB_REPOS/query_dataset/repo_artifacts.db"
     },
     "googlelocal": {
-      "mongodb_database": "googlelocal_db",
-      "duckdb_path": "DataAgentBench/query_googlelocal/query_dataset/googlelocal_user.db",
-      "sqlite_path": "DataAgentBench/query_googlelocal/query_dataset/googlelocal_sqlite.db"
+      "sqlite_path": "DataAgentBench/query_googlelocal/query_dataset/review_query.db"
     },
     "music_brainz_20k": {
-      "mongodb_database": "music_brainz_20k_db",
-      "duckdb_path": "DataAgentBench/query_music_brainz_20k/query_dataset/music_brainz_user.db",
-      "sqlite_path": "DataAgentBench/query_music_brainz_20k/query_dataset/music_brainz_sqlite.db"
+      "duckdb_path": "DataAgentBench/query_music_brainz_20k/query_dataset/tracks.db"
     },
     "PANCANCER_ATLAS": {
-      "mongodb_database": "pancancer_atlas_db",
-      "duckdb_path": "DataAgentBench/query_PANCANCER_ATLAS/query_dataset/pancancer_user.db",
-      "sqlite_path": "DataAgentBench/query_PANCANCER_ATLAS/query_dataset/pancancer_sqlite.db"
+      "duckdb_path": "DataAgentBench/query_PANCANCER_ATLAS/query_dataset/pancancer_molecular.db"
     },
     "PATENTS": {
-      "mongodb_database": "patents_db",
-      "duckdb_path": "DataAgentBench/query_PATENTS/query_dataset/patents_user.db",
-      "sqlite_path": "DataAgentBench/query_PATENTS/query_dataset/patents_sqlite.db"
+      "duckdb_path": "DataAgentBench/query_PATENTS/query_dataset/patent_publication.db"
     },
     "stockindex": {
-      "mongodb_database": "stockindex_db",
-      "duckdb_path": "DataAgentBench/query_stockindex/query_dataset/stockindex_user.db",
-      "sqlite_path": "DataAgentBench/query_stockindex/query_dataset/stockindex_sqlite.db"
+      "sqlite_path": "DataAgentBench/query_stockindex/query_dataset/indexInfo_query.db",
+      "duckdb_path": "DataAgentBench/query_stockindex/query_dataset/indextrade_query.db"
     },
     "stockmarket": {
-      "mongodb_database": "stockmarket_db",
-      "duckdb_path": "DataAgentBench/query_stockmarket/query_dataset/stockmarket_user.db",
-      "sqlite_path": "DataAgentBench/query_stockmarket/query_dataset/stockmarket_sqlite.db"
+      "sqlite_path": "DataAgentBench/query_stockmarket/query_dataset/stockinfo_query.db",
+      "duckdb_path": "DataAgentBench/query_stockmarket/query_dataset/stocktrade_query.db"
     }
   }
 }

@@ -3,8 +3,9 @@ LLM-driven SQL / MongoDB aggregation generation using KB + schema context.
 
 Used when ORACLE_FORGE_LLM_SQL is enabled (see eval/LLM_QUERY_GENERATION_PLAN.md).
 
-Debug: each request logs system + user prompts to docs/driver_notes/sql_builder_llm_prompts.jsonl
-(set ORACLE_FORGE_SQL_BUILDER_PROMPT_LOG=false to disable; ORACLE_FORGE_SQL_BUILDER_PROMPT_LOG_PATH to override).
+Debug: full chat ``messages`` (routing + query generation) append to ``logs/llm_io.jsonl``
+(``ORACLE_FORGE_LLM_IO_LOG=false`` to disable). Legacy: ``docs/driver_notes/sql_builder_llm_prompts.jsonl`` via
+``ORACLE_FORGE_SQL_BUILDER_PROMPT_LOG``.
 """
 
 from __future__ import annotations
@@ -18,6 +19,12 @@ from typing import Any, Dict, List, Optional, Tuple
 from dotenv import load_dotenv
 import httpx
 
+from agent.query_builders import (
+    augment_system_for_builder_kind,
+    build_per_engine_user_prompt,
+    classify_builder_kind,
+    schema_slice_summary,
+)
 from agent.query_pipeline import (
     AnswerContract,
     PlannerBackend,
@@ -39,6 +46,8 @@ from utils.sql_builder_scope import (
     select_collections_for_mongo_engine,
     select_tables_for_sql_engine,
 )
+from utils.llm_io_log import append_llm_io_log
+from utils.query_builder_log import append_query_builder_log, truncate_for_log
 from utils.token_limiter import TokenLimiter
 from utils.yelp_benchmark_sql import yelp_attributes_parking_offer_sql, yelp_parking_question_hint_line
 
@@ -250,19 +259,26 @@ class LLMQueryGenerator:
             f"QUESTION:\n{question}\nDATASET_ID:{context.get('dataset_id') or ''}\n"
             "Describe what the answer must contain (grain, metrics, dimensions, filters)."
         )
+        ds_for_log: Optional[str] = None
+        if isinstance(context.get("dataset_id"), str) and context.get("dataset_id"):
+            ds_for_log = str(context["dataset_id"]).strip() or None
+        io_extra: Dict[str, Any] = {
+            "subphase": "planner_contract",
+            "dataset_id": ds_for_log,
+            "question_preview": (question or "")[:4000],
+            "generation_mode": "per_database",
+            "pipeline_phase": "planner",
+        }
         try:
             if self.provider == "openrouter":
-                raw = self._openrouter_json(system, user)
+                raw = self._openrouter_json(system, user, io_extra=io_extra)
             else:
-                raw = self._groq_json(system, user)
+                raw = self._groq_json(system, user, io_extra=io_extra)
         except Exception:
             return None
         if not isinstance(raw, dict) or not raw:
             return None
         contract = answer_contract_from_planner_json(raw, fallback_summary="llm_planner")
-        ds_for_log: Optional[str] = None
-        if isinstance(context.get("dataset_id"), str) and context.get("dataset_id"):
-            ds_for_log = str(context["dataset_id"]).strip() or None
         _log_sql_builder_llm_prompts(
             self.repo_root,
             question=question,
@@ -301,6 +317,43 @@ class LLMQueryGenerator:
             },
             "pipeline_trace": pipeline_trace,
         }
+
+    def _log_query_builder_phase(
+        self,
+        *,
+        ds_for_log: Optional[str],
+        question: str,
+        db: str,
+        builder_kind: str,
+        scoped_tables: List[str],
+        schema_json: str,
+        attempt_index: int,
+        system: str,
+        user_prompt: str,
+        status: str,
+        payload: Any = None,
+        extra_detail: Optional[str] = None,
+    ) -> None:
+        append_query_builder_log(
+            self.repo_root,
+            {
+                "dataset_id": ds_for_log,
+                "question": (question or "")[:4000],
+                "engine": db,
+                "builder_kind": builder_kind,
+                "scoped_tables": scoped_tables,
+                "schema_slice_chars": len(schema_json),
+                "schema_slice_summary": schema_slice_summary(schema_json),
+                "attempt_index": attempt_index,
+                "system_prompt": system,
+                "user_prompt": user_prompt,
+                "system_prompt_chars": len(system),
+                "user_prompt_chars": len(user_prompt),
+                "status": status,
+                "llm_response": truncate_for_log(payload),
+                "detail": extra_detail,
+            },
+        )
 
     def _phase_run_planner(
         self,
@@ -452,40 +505,37 @@ class LLMQueryGenerator:
             )
 
             schema_json = linked_payload.linked_schema_json
-            system = _system_prompt_per_engine(db)
+            eng_hints = playbook_engine_generation_hints(dp, db) if dp else []
+            yelp_parking_extra = ""
+            if (
+                (ds_for_log or "").lower() == "yelp"
+                and "parking" in question.lower()
+                and db == "postgresql"
+            ):
+                yelp_parking_extra = (
+                    "DETERMINISTIC_PREDICATE (prefer this for Yelp parking on attributes TEXT):\n"
+                    f"  {yelp_attributes_parking_offer_sql('b.attributes')}\n"
+                    f"  ({yelp_parking_question_hint_line()})\n"
+                )
 
             engine_ok = False
             for attempt in range(max_schema_retries + 1):
                 err_block = _format_fix_block(fix_notes)
-
-                user_prompt = (
-                    f"QUESTION:\n{question}\n"
-                    f"ANSWER_CONTRACT_JSON:\n{contract_to_prompt_json(contract)}\n"
-                    f"TARGET_ENGINE: {db}\n"
-                    f"ROUTING: {rationale[:400]}\n"
-                    f"HINTS_JSON: {json.dumps(hints, ensure_ascii=False) if hints else '{}'}\n"
-                )
-                if playbook_summary:
-                    user_prompt += f"BENCHMARK_CONTEXT:\n{playbook_summary[:1200]}\n"
-                eng_hints = playbook_engine_generation_hints(dp, db) if dp else []
-                if eng_hints:
-                    user_prompt += "DATASET_HINTS:\n" + "\n".join(f"- {h}" for h in eng_hints) + "\n"
-                if (
-                    (ds_for_log or "").lower() == "yelp"
-                    and "parking" in question.lower()
-                    and db == "postgresql"
-                ):
-                    user_prompt += (
-                        "DETERMINISTIC_PREDICATE (prefer this for Yelp parking on attributes TEXT):\n"
-                        f"  {yelp_attributes_parking_offer_sql('b.attributes')}\n"
-                        f"  ({yelp_parking_question_hint_line()})\n"
-                    )
-                user_prompt += (
-                    f"LINKED_SCHEMA (phase 2 output; use only listed columns):\n"
-                    f"{schema_json}\n"
-                    f"{err_block}"
-                    "PHASE 3 — Generate read-only query from contract + linked schema only.\n"
-                    "OUTPUT_JSON: SQL → {{\"sql\":\"...\"}} ; Mongo → {{\"collection\":\"...\",\"pipeline\":[...]}}"
+                kind = classify_builder_kind(scoped_tables, fix_notes)
+                base_sys = _system_prompt_per_engine(db)
+                system = augment_system_for_builder_kind(base_sys, kind)
+                user_prompt = build_per_engine_user_prompt(
+                    kind=kind,
+                    question=question,
+                    contract_json=contract_to_prompt_json(contract),
+                    engine=db,
+                    rationale=rationale,
+                    hints=hints,
+                    playbook_summary=playbook_summary,
+                    eng_hints=eng_hints,
+                    schema_json=schema_json,
+                    err_block=err_block,
+                    yelp_parking_extra=yelp_parking_extra,
                 )
                 user_prompt = self.token_limiter.truncate_text(user_prompt, self.token_limiter.max_prompt_tokens)
 
@@ -505,15 +555,38 @@ class LLMQueryGenerator:
                         "planner_backend": planner_backend,
                         "engine": db,
                         "scoped_tables": scoped_tables,
+                        "builder_kind": kind,
                     },
                 )
 
+                io_extra = {
+                    "subphase": "per_database",
+                    "generation_mode": "per_database",
+                    "dataset_id": ds_for_log,
+                    "engine": db,
+                    "schema_attempt": attempt,
+                    "builder_kind": kind,
+                    "question_preview": (question or "")[:4000],
+                }
                 try:
                     if self.provider == "openrouter":
-                        payload = self._openrouter_json(system, user_prompt)
+                        payload = self._openrouter_json(system, user_prompt, io_extra=io_extra)
                     else:
-                        payload = self._groq_json(system, user_prompt)
-                except Exception:
+                        payload = self._groq_json(system, user_prompt, io_extra=io_extra)
+                except Exception as exc:
+                    self._log_query_builder_phase(
+                        ds_for_log=ds_for_log,
+                        question=question,
+                        db=db,
+                        builder_kind=kind,
+                        scoped_tables=scoped_tables,
+                        schema_json=schema_json,
+                        attempt_index=attempt,
+                        system=system,
+                        user_prompt=user_prompt,
+                        status="llm_error",
+                        extra_detail=str(exc)[:2000],
+                    )
                     if attempt >= max_schema_retries:
                         return self._per_db_generation_failed(
                             gate_detail=f"{db}: llm_request_failed after retries",
@@ -526,6 +599,19 @@ class LLMQueryGenerator:
                     continue
 
                 if not isinstance(payload, dict):
+                    self._log_query_builder_phase(
+                        ds_for_log=ds_for_log,
+                        question=question,
+                        db=db,
+                        builder_kind=kind,
+                        scoped_tables=scoped_tables,
+                        schema_json=schema_json,
+                        attempt_index=attempt,
+                        system=system,
+                        user_prompt=user_prompt,
+                        status="bad_payload_type",
+                        payload=payload,
+                    )
                     if attempt >= max_schema_retries:
                         return self._per_db_generation_failed(
                             gate_detail=f"{db}: non_object_response after retries",
@@ -539,6 +625,19 @@ class LLMQueryGenerator:
 
                 raw_step = self._normalize_single_engine_response(db, payload)
                 if raw_step is None:
+                    self._log_query_builder_phase(
+                        ds_for_log=ds_for_log,
+                        question=question,
+                        db=db,
+                        builder_kind=kind,
+                        scoped_tables=scoped_tables,
+                        schema_json=schema_json,
+                        attempt_index=attempt,
+                        system=system,
+                        user_prompt=user_prompt,
+                        status="parse_error",
+                        payload=payload,
+                    )
                     if attempt >= max_schema_retries:
                         return self._per_db_generation_failed(
                             gate_detail=f"{db}: missing sql or collection/pipeline after retries",
@@ -550,12 +649,53 @@ class LLMQueryGenerator:
                     fix_notes.append(f"{db}: missing sql or collection/pipeline in JSON")
                     continue
 
-                ok, errs = validate_llm_generated_steps([raw_step], schema_metadata)
+                ok, errs = validate_llm_generated_steps(
+                    [raw_step],
+                    schema_metadata,
+                    validation_log_repo_root=self.repo_root,
+                    validation_log_question=question,
+                    validation_log_dataset_id=ds_for_log,
+                )
                 if ok:
+                    self._log_query_builder_phase(
+                        ds_for_log=ds_for_log,
+                        question=question,
+                        db=db,
+                        builder_kind=kind,
+                        scoped_tables=scoped_tables,
+                        schema_json=schema_json,
+                        attempt_index=attempt,
+                        system=system,
+                        user_prompt=user_prompt,
+                        status="ok",
+                        payload=payload,
+                    )
                     steps_out.append(raw_step)
                     total_attempts += attempt + 1
+                    pipeline_trace.append(
+                        {
+                            "phase": "query_build",
+                            "engine": db,
+                            "builder_kind": kind,
+                            "attempts_used": attempt + 1,
+                        }
+                    )
                     engine_ok = True
                     break
+                self._log_query_builder_phase(
+                    ds_for_log=ds_for_log,
+                    question=question,
+                    db=db,
+                    builder_kind=kind,
+                    scoped_tables=scoped_tables,
+                    schema_json=schema_json,
+                    attempt_index=attempt,
+                    system=system,
+                    user_prompt=user_prompt,
+                    status="schema_validation_failed",
+                    payload=payload,
+                    extra_detail=" | ".join(errs[:8]),
+                )
                 fix_notes.append(f"{db} schema: " + " | ".join(errs[:8]))
                 if attempt >= max_schema_retries:
                     return self._per_db_generation_failed(
@@ -704,11 +844,18 @@ class LLMQueryGenerator:
                 extra={"generation_mode": "monolithic"},
             )
 
+            io_extra = {
+                "subphase": "monolithic_sql",
+                "generation_mode": "monolithic",
+                "dataset_id": ds_for_log,
+                "schema_attempt": attempt,
+                "question_preview": (question or "")[:4000],
+            }
             try:
                 if self.provider == "openrouter":
-                    payload = self._openrouter_json(system, user_prompt)
+                    payload = self._openrouter_json(system, user_prompt, io_extra=io_extra)
                 else:
-                    payload = self._groq_json(system, user_prompt)
+                    payload = self._groq_json(system, user_prompt, io_extra=io_extra)
             except Exception:
                 if attempt >= max_schema_retries:
                     return None
@@ -727,7 +874,13 @@ class LLMQueryGenerator:
                 fix_notes.append(f"attempt_{attempt + 1}: missing_or_empty_steps")
                 continue
 
-            ok, errs = validate_llm_generated_steps(steps, schema_metadata)
+            ok, errs = validate_llm_generated_steps(
+                steps,
+                schema_metadata,
+                validation_log_repo_root=self.repo_root,
+                validation_log_question=question,
+                validation_log_dataset_id=ds_for_log,
+            )
             if ok:
                 return {
                     "steps": steps,
@@ -743,23 +896,51 @@ class LLMQueryGenerator:
 
         return None
 
-    def _groq_json(self, system: str, user: str) -> Dict[str, Any]:
+    def _groq_json(
+        self,
+        system: str,
+        user: str,
+        *,
+        io_extra: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if self.client is None:
             raise RuntimeError("Groq client unavailable")
+        messages = [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+        append_llm_io_log(
+            self.repo_root,
+            {
+                "phase": "query_generation",
+                "provider": "groq",
+                "model": self.model_name,
+                "messages": messages,
+                "request": {
+                    "temperature": 0,
+                    "max_tokens": self.max_gen_tokens,
+                    "response_format": {"type": "json_object"},
+                },
+                **(io_extra or {}),
+            },
+        )
         response = self.client.chat.completions.create(
             model=self.model_name,
             temperature=0,
             max_tokens=self.max_gen_tokens,
             response_format={"type": "json_object"},
-            messages=[
-                {"role": "system", "content": system},
-                {"role": "user", "content": user},
-            ],
+            messages=messages,
         )
         content = (response.choices[0].message.content or "{}").strip()
         return self._parse_json(content)
 
-    def _openrouter_json(self, system: str, user: str) -> Dict[str, Any]:
+    def _openrouter_json(
+        self,
+        system: str,
+        user: str,
+        *,
+        io_extra: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if not self.openrouter_api_key:
             raise RuntimeError("OPENROUTER_API_KEY missing")
         headers = {
@@ -780,6 +961,21 @@ class LLMQueryGenerator:
                 {"role": "user", "content": user},
             ],
         }
+        append_llm_io_log(
+            self.repo_root,
+            {
+                "phase": "query_generation",
+                "provider": "openrouter",
+                "model": self.model_name,
+                "messages": body["messages"],
+                "request": {
+                    "temperature": body.get("temperature"),
+                    "max_tokens": body.get("max_tokens"),
+                    "response_format": body.get("response_format"),
+                },
+                **(io_extra or {}),
+            },
+        )
         r = self.http_client.post(f"{self.openrouter_base_url}/chat/completions", headers=headers, json=body)
         r.raise_for_status()
         data = r.json()

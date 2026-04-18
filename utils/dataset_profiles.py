@@ -118,6 +118,7 @@ def load_dataset_profile(
     cfg_path = os.getenv("ORACLE_FORGE_DATASETS_CONFIG", "").strip()
     path = Path(cfg_path) if cfg_path else repo_root / "eval" / "datasets.json"
     profile = DatasetProfile(dataset_id=did)
+    block: Optional[Dict[str, Any]] = None
     if path.is_file():
         try:
             import json
@@ -152,6 +153,10 @@ def load_dataset_profile(
         profile.mongodb_database = _default_mongo_db_name(did)
 
     if not profile.env_overrides():
+        # Allow callers (e.g. schema registry) to still resolve Postgres/Mongo from process env
+        # when the dataset block exists but no local *.db paths are present.
+        if isinstance(block, dict):
+            return profile
         return None
     return profile
 

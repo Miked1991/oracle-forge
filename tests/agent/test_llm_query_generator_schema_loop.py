@@ -11,6 +11,7 @@ from agent.llm_query_generator import LLMQueryGenerator
 
 def test_generate_steps_retries_on_schema_validation_until_ok(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ORACLE_FORGE_SQL_BUILDER_PROMPT_LOG", "false")
+    monkeypatch.setenv("ORACLE_FORGE_PREEXEC_VALIDATION_LOG", "false")
     monkeypatch.setenv("ORACLE_FORGE_LLM_PREEXEC_SCHEMA_RETRIES", "3")
     gen = LLMQueryGenerator(repo_root=Path(__file__).resolve().parents[2])
     gen.provider = "openrouter"
@@ -30,7 +31,7 @@ def test_generate_steps_retries_on_schema_validation_until_ok(monkeypatch: pytes
 
     calls: list[int] = []
 
-    def fake_openrouter(system: str, user: str) -> dict:
+    def fake_openrouter(system: str, user: str, **_kwargs: object) -> dict:
         calls.append(1)
         if len(calls) == 1:
             return {
@@ -63,6 +64,7 @@ def test_generate_steps_retries_on_schema_validation_until_ok(monkeypatch: pytes
 
 def test_generate_steps_returns_none_after_exhausting_retries(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("ORACLE_FORGE_SQL_BUILDER_PROMPT_LOG", "false")
+    monkeypatch.setenv("ORACLE_FORGE_PREEXEC_VALIDATION_LOG", "false")
     monkeypatch.setenv("ORACLE_FORGE_LLM_PREEXEC_SCHEMA_RETRIES", "1")
     gen = LLMQueryGenerator(repo_root=Path(__file__).resolve().parents[2])
     gen.provider = "openrouter"
@@ -80,7 +82,7 @@ def test_generate_steps_returns_none_after_exhausting_retries(monkeypatch: pytes
         "schema_bundle_json": "{}",
     }
 
-    def always_bad(system: str, user: str) -> dict:
+    def always_bad(system: str, user: str, **_kwargs: object) -> dict:
         return {
             "steps": [
                 {

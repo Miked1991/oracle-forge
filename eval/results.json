@@ -1,24 +1,42 @@
 {
-  "dataset": "multi (['yelp'])",
+  "dataset": "multi (['yelp', 'agnews', 'PATENTS', 'stockindex'])",
   "dataset_path": "DataAgentBench/query_* (see datasets_included)",
   "run": {
     "dab_scope": "multi",
     "datasets_included": [
-      "yelp"
+      "yelp",
+      "agnews",
+      "PATENTS",
+      "stockindex"
     ],
-    "per_dataset": 2
+    "per_dataset": 1
   },
-  "evaluated_at_utc": "2026-04-18T06:57:59.427357+00:00",
-  "total_queries": 2,
+  "evaluated_at_utc": "2026-04-18T14:32:21.814580+00:00",
+  "total_queries": 4,
   "trials_per_query": 1,
   "correct_first_answers": 0,
   "correct_trials": 0,
-  "total_trials": 2,
+  "total_trials": 4,
   "pass@1": 0.0,
   "overall_trial_accuracy": 0.0,
   "per_dataset_summary": {
     "yelp": {
-      "queries": 2,
+      "queries": 1,
+      "first_trial_correct": 0,
+      "pass@1": 0.0
+    },
+    "agnews": {
+      "queries": 1,
+      "first_trial_correct": 0,
+      "pass@1": 0.0
+    },
+    "PATENTS": {
+      "queries": 1,
+      "first_trial_correct": 0,
+      "pass@1": 0.0
+    },
+    "stockindex": {
+      "queries": 1,
       "first_trial_correct": 0,
       "pass@1": 0.0
     }
@@ -37,54 +55,224 @@
           "correct": false,
           "eval_correct": false,
           "validation_message": "execution_match=False",
-          "status": "failure",
-          "answer": null,
-          "confidence": 0.01,
+          "status": "success",
+          "answer": {
+            "metrics": {
+              "row_count": 1,
+              "negative_sentiment_count": 0,
+              "high_value_with_tickets": 0,
+              "total_sales": 0.0
+            },
+            "records": [
+              {
+                "average_rating": null
+              }
+            ]
+          },
+          "confidence": 1.0,
           "closed_loop": {
-            "ok": false,
+            "ok": true,
             "attempt_count": 1,
             "replans": 0,
             "attempts": [
               {
                 "attempt": 1,
-                "all_steps_ok": false,
-                "step_ok": [],
+                "all_steps_ok": true,
+                "step_ok": [
+                  true
+                ],
                 "replan_context": null
               }
             ]
           },
           "query_trace": [
             {
+              "tool_used": "postgres_sql_query",
+              "selection_reason": "PostgreSQL selected as primary SQL source with strongest relational coverage.",
+              "dialect_handling": "sql",
+              "raw_query": "SELECT AVG(r.stars) AS average_rating\nFROM business b\nJOIN review r ON r.business_id = b.business_id\nWHERE b.description ILIKE '%Indianapolis%'\n  AND b.state_code = 'IN';",
+              "result_summary": "list(len=1)",
+              "duration_ms": 12,
+              "success": true,
+              "failure_type": null
+            },
+            {
               "event": "closed_loop",
-              "closed_loop_ok": false,
+              "closed_loop_ok": true,
               "attempt_count": 1,
               "replans": 0,
               "attempts": [
                 {
                   "attempt": 1,
-                  "all_steps_ok": false,
-                  "step_ok": [],
+                  "all_steps_ok": true,
+                  "step_ok": [
+                    true
+                  ],
                   "replan_context": null
                 }
               ]
+            },
+            {
+              "merge_strategy": "single_db",
+              "row_count": 1,
+              "database": "postgresql"
             }
           ],
           "token_usage": {
-            "prompt_tokens": 4012,
-            "completion_tokens": 47,
-            "total_tokens": 4059,
+            "prompt_tokens": 4093,
+            "completion_tokens": 218,
+            "total_tokens": 4311,
             "max_prompt_tokens": 3500,
             "max_tool_loops": 12
           },
-          "used_databases": []
+          "used_databases": [
+            {
+              "database": "postgresql",
+              "reason": "PostgreSQL selected as primary SQL source with strongest relational coverage.",
+              "tool": "postgres_sql_query"
+            }
+          ],
+          "pipeline_debug": {
+            "routing": {
+              "llm_model": "openai/gpt-5.4-mini",
+              "llm_used_for_reasoning": true,
+              "mcp_tools_used": [
+                "postgres_sql_query"
+              ],
+              "predicted_databases": [
+                "postgresql"
+              ]
+            },
+            "table_selection": {
+              "postgresql": {
+                "scoped": [
+                  "business",
+                  "business_category",
+                  "review"
+                ],
+                "readiness_ok": true,
+                "query_build": {
+                  "builder_kind": "multi_table",
+                  "attempts_used": 1
+                }
+              }
+            },
+            "query_pipeline_metadata": {
+              "four_phase": true,
+              "planner_backend": "heuristic",
+              "engines_linked": [
+                "postgresql"
+              ]
+            },
+            "query_pipeline_trace": [
+              {
+                "phase": "planner",
+                "backend": "heuristic",
+                "contract_json": "{\"output_grain\": \"scalar\", \"metrics\": [\"average\"], \"filters\": [], \"dimensions\": [], \"time_bounds\": [], \"requires_join_or_group\": false}"
+              },
+              {
+                "phase": "schema_link",
+                "engine": "postgresql",
+                "scoped": [
+                  "business",
+                  "business_category",
+                  "review"
+                ],
+                "readiness_ok": true
+              },
+              {
+                "phase": "query_build",
+                "engine": "postgresql",
+                "builder_kind": "multi_table",
+                "attempts_used": 1
+              }
+            ],
+            "generated_queries": [
+              {
+                "database": "postgresql",
+                "dialect": "sql",
+                "query": "SELECT AVG(r.stars) AS average_rating\nFROM business b\nJOIN review r ON r.business_id = b.business_id\nWHERE b.description ILIKE '%Indianapolis%'\n  AND b.state_code = 'IN';"
+              }
+            ],
+            "plan_steps_preview": [
+              {
+                "database": "postgresql",
+                "dialect": "sql",
+                "sql_or_pipeline": "SELECT AVG(r.stars) AS average_rating\nFROM business b\nJOIN review r ON r.business_id = b.business_id\nWHERE b.description ILIKE '%Indianapolis%'\n  AND b.state_code = 'IN';"
+              }
+            ],
+            "validation": {
+              "validation_status": {
+                "valid": true,
+                "failed_steps": [],
+                "semantic_ok": true,
+                "semantic_reason": null
+              },
+              "semantic_alignment": {
+                "ok": true,
+                "reason": null
+              }
+            },
+            "repair_attempts": {
+              "preexec_repair_trace": [
+                {
+                  "attempt": 0,
+                  "resolved": true,
+                  "schema_gate_failed": false,
+                  "generation_failed": false
+                }
+              ],
+              "preexec_repair_exhausted": null,
+              "closed_loop": {
+                "ok": true,
+                "attempt_count": 1,
+                "replans": 0,
+                "attempts": [
+                  {
+                    "attempt": 1,
+                    "all_steps_ok": true,
+                    "step_ok": [
+                      true
+                    ],
+                    "replan_context": null
+                  }
+                ]
+              }
+            },
+            "execution": {
+              "tool_traces": [
+                {
+                  "tool_used": "postgres_sql_query",
+                  "raw_query": "SELECT AVG(r.stars) AS average_rating\nFROM business b\nJOIN review r ON r.business_id = b.business_id\nWHERE b.description ILIKE '%Indianapolis%'\n  AND b.state_code = 'IN';",
+                  "duration_ms": 12,
+                  "success": true,
+                  "failure_type": null,
+                  "result_summary": "list(len=1)"
+                }
+              ],
+              "merge_info": {
+                "merge_strategy": "single_db",
+                "row_count": 1,
+                "database": "postgresql"
+              },
+              "status": "success"
+            },
+            "context_layers_used": [
+              "authoritative_registry",
+              "schema_metadata",
+              "domain_institutional",
+              "interaction_memory"
+            ],
+            "schema_info_snapshot": "{}"
+          }
         }
       ]
     },
     {
-      "id": "query2",
-      "composite_id": "yelp:query2",
-      "dataset": "yelp",
-      "question": "Which U.S. state has the highest number of reviews, and what is the average rating of businesses in that state?",
+      "id": "query1",
+      "composite_id": "agnews:query1",
+      "dataset": "agnews",
+      "question": "What is the title of the sports article whose description has the greatest number of characters?",
       "first_trial_correct": false,
       "trial_accuracy": 0.0,
       "trials": [
@@ -126,13 +314,337 @@
             }
           ],
           "token_usage": {
-            "prompt_tokens": 4020,
+            "prompt_tokens": 3986,
             "completion_tokens": 47,
-            "total_tokens": 4067,
+            "total_tokens": 4033,
             "max_prompt_tokens": 3500,
             "max_tool_loops": 12
           },
-          "used_databases": []
+          "used_databases": [],
+          "pipeline_debug": {
+            "routing": {
+              "llm_model": "openai/gpt-5.4-mini",
+              "llm_used_for_reasoning": true,
+              "mcp_tools_used": [],
+              "predicted_databases": []
+            },
+            "table_selection": {
+              "mongodb": {
+                "scoped": [
+                  "business",
+                  "checkin"
+                ],
+                "readiness_ok": false
+              }
+            },
+            "query_pipeline_metadata": {
+              "four_phase": true,
+              "planner_backend": "heuristic",
+              "engines_linked": []
+            },
+            "query_pipeline_trace": [
+              {
+                "phase": "planner",
+                "backend": "heuristic",
+                "contract_json": "{\"output_grain\": \"scalar\", \"metrics\": [], \"filters\": [], \"dimensions\": [], \"time_bounds\": [], \"requires_join_or_group\": false}"
+              },
+              {
+                "phase": "schema_link",
+                "engine": "mongodb",
+                "scoped": [
+                  "business",
+                  "checkin"
+                ],
+                "readiness_ok": false,
+                "error": "need_schema_refresh:empty_collection_fields:business"
+              }
+            ],
+            "generated_queries": [],
+            "plan_steps_preview": [],
+            "validation": {
+              "validation_status": {
+                "valid": true,
+                "failed_steps": []
+              },
+              "semantic_alignment": null
+            },
+            "repair_attempts": {
+              "preexec_repair_trace": [
+                {
+                  "attempt": 0,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                },
+                {
+                  "attempt": 1,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                },
+                {
+                  "attempt": 2,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                },
+                {
+                  "attempt": 3,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                }
+              ],
+              "preexec_repair_exhausted": true,
+              "closed_loop": {
+                "ok": false,
+                "attempt_count": 1,
+                "replans": 0,
+                "attempts": [
+                  {
+                    "attempt": 1,
+                    "all_steps_ok": false,
+                    "step_ok": [],
+                    "replan_context": null
+                  }
+                ]
+              }
+            },
+            "execution": {
+              "tool_traces": [],
+              "merge_info": null,
+              "status": "failure"
+            },
+            "context_layers_used": null,
+            "schema_info_snapshot": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "query1",
+      "composite_id": "PATENTS:query1",
+      "dataset": "PATENTS",
+      "question": "Identify the CPC technology areas with the highest exponential moving average of patent filings each year (smoothing factor 0.2), and return only the CPC group codes at level 5 whose best year is 2022.",
+      "first_trial_correct": false,
+      "trial_accuracy": 0.0,
+      "trials": [
+        {
+          "trial": 1,
+          "correct": false,
+          "eval_correct": false,
+          "validation_message": "execution_match=False",
+          "status": "failure",
+          "answer": null,
+          "confidence": 0.0,
+          "closed_loop": {
+            "ok": false,
+            "attempt_count": 0,
+            "replans": 0,
+            "attempts": []
+          },
+          "query_trace": [],
+          "token_usage": {
+            "prompt_tokens": 54,
+            "completion_tokens": 24,
+            "total_tokens": 78,
+            "max_prompt_tokens": 3500,
+            "max_tool_loops": 12
+          },
+          "used_databases": [],
+          "pipeline_debug": {
+            "routing": {
+              "llm_model": "openai/gpt-5.4-mini",
+              "llm_used_for_reasoning": false,
+              "mcp_tools_used": [],
+              "predicted_databases": []
+            },
+            "table_selection": {},
+            "query_pipeline_metadata": null,
+            "query_pipeline_trace": [],
+            "generated_queries": [],
+            "plan_steps_preview": [],
+            "validation": {
+              "validation_status": {
+                "valid": false,
+                "failed_steps": [],
+                "semantic_ok": false,
+                "semantic_reason": "llm_routing_failed"
+              },
+              "semantic_alignment": {
+                "ok": false,
+                "reason": "llm_routing_failed"
+              }
+            },
+            "repair_attempts": {
+              "preexec_repair_trace": [],
+              "preexec_repair_exhausted": null,
+              "closed_loop": {
+                "ok": false,
+                "attempt_count": 0,
+                "replans": 0,
+                "attempts": []
+              }
+            },
+            "execution": {
+              "tool_traces": [],
+              "merge_info": null,
+              "status": "failure"
+            },
+            "context_layers_used": [],
+            "schema_info_snapshot": "{}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "query1",
+      "composite_id": "stockindex:query1",
+      "dataset": "stockindex",
+      "question": "Which stock index in the Asia region has exhibited the highest average intraday volatility since 2020?",
+      "first_trial_correct": false,
+      "trial_accuracy": 0.0,
+      "trials": [
+        {
+          "trial": 1,
+          "correct": false,
+          "eval_correct": false,
+          "validation_message": "execution_match=False",
+          "status": "failure",
+          "answer": null,
+          "confidence": 0.01,
+          "closed_loop": {
+            "ok": false,
+            "attempt_count": 1,
+            "replans": 0,
+            "attempts": [
+              {
+                "attempt": 1,
+                "all_steps_ok": false,
+                "step_ok": [],
+                "replan_context": null
+              }
+            ]
+          },
+          "query_trace": [
+            {
+              "event": "closed_loop",
+              "closed_loop_ok": false,
+              "attempt_count": 1,
+              "replans": 0,
+              "attempts": [
+                {
+                  "attempt": 1,
+                  "all_steps_ok": false,
+                  "step_ok": [],
+                  "replan_context": null
+                }
+              ]
+            }
+          ],
+          "token_usage": {
+            "prompt_tokens": 3989,
+            "completion_tokens": 47,
+            "total_tokens": 4036,
+            "max_prompt_tokens": 3500,
+            "max_tool_loops": 12
+          },
+          "used_databases": [],
+          "pipeline_debug": {
+            "routing": {
+              "llm_model": "openai/gpt-5.4-mini",
+              "llm_used_for_reasoning": true,
+              "mcp_tools_used": [],
+              "predicted_databases": []
+            },
+            "table_selection": {
+              "duckdb": {
+                "scoped": [
+                  "index_trade"
+                ],
+                "readiness_ok": false
+              }
+            },
+            "query_pipeline_metadata": {
+              "four_phase": true,
+              "planner_backend": "heuristic",
+              "engines_linked": []
+            },
+            "query_pipeline_trace": [
+              {
+                "phase": "planner",
+                "backend": "heuristic",
+                "contract_json": "{\"output_grain\": \"scalar\", \"metrics\": [\"average\"], \"filters\": [], \"dimensions\": [], \"time_bounds\": [\"time_window\"], \"requires_join_or_group\": false}"
+              },
+              {
+                "phase": "schema_link",
+                "engine": "duckdb",
+                "scoped": [
+                  "index_trade"
+                ],
+                "readiness_ok": false,
+                "error": "need_schema_refresh:empty_column_metadata:index_trade"
+              }
+            ],
+            "generated_queries": [],
+            "plan_steps_preview": [],
+            "validation": {
+              "validation_status": {
+                "valid": true,
+                "failed_steps": []
+              },
+              "semantic_alignment": null
+            },
+            "repair_attempts": {
+              "preexec_repair_trace": [
+                {
+                  "attempt": 0,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                },
+                {
+                  "attempt": 1,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                },
+                {
+                  "attempt": 2,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                },
+                {
+                  "attempt": 3,
+                  "resolved": false,
+                  "schema_gate_failed": true,
+                  "generation_failed": false
+                }
+              ],
+              "preexec_repair_exhausted": true,
+              "closed_loop": {
+                "ok": false,
+                "attempt_count": 1,
+                "replans": 0,
+                "attempts": [
+                  {
+                    "attempt": 1,
+                    "all_steps_ok": false,
+                    "step_ok": [],
+                    "replan_context": null
+                  }
+                ]
+              }
+            },
+            "execution": {
+              "tool_traces": [],
+              "merge_info": null,
+              "status": "failure"
+            },
+            "context_layers_used": null,
+            "schema_info_snapshot": "{}"
+          }
         }
       ]
     }

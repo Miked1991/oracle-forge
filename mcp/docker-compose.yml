@@ -4,6 +4,8 @@ services:
   postgres:
     image: postgres:17
     restart: unless-stopped
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -17,6 +19,8 @@ services:
   mongo:
     image: mongo:7
     restart: unless-stopped
+    ports:
+      - "27017:27017"
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 5s

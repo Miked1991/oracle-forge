@@ -9,6 +9,8 @@ Usage (from repo root, with .venv activated):
 
   python eval/debug_one_query.py --dataset yelp --index 2 --first-tool-trace
 
+  python eval/debug_one_query.py --dataset yelp --index 0 --pipeline-debug
+
 Environment: same as eval/run_dab_eval.py (load_dotenv .env).
 """
 
@@ -29,6 +31,7 @@ if str(ROOT) not in sys.path:
 
 from agent.main import run_agent
 from eval.evaluator import OracleForgeEvaluator
+from utils.pipeline_debug_snapshot import extract_pipeline_debug
 
 
 def _ground_truth_lines(query_case: Dict[str, Any]) -> Tuple[Optional[str], List[str]]:
@@ -79,6 +82,11 @@ def main() -> None:
         "--first-tool-trace",
         action="store_true",
         help="Keep only the first tool call entry in trace/query_trace (drops retries and closed_loop events).",
+    )
+    parser.add_argument(
+        "--pipeline-debug",
+        action="store_true",
+        help="Include Phase 9 pipeline_debug block (schema snapshot, routing proxy, validation, repairs, execution).",
     )
     args = parser.parse_args()
 
@@ -159,6 +167,8 @@ def main() -> None:
         "llm_used_for_reasoning": outcome.get("architecture_disclosure", {}).get("llm_used_for_reasoning"),
         "agent": agent_block,
     }
+    if args.pipeline_debug:
+        report["pipeline_debug"] = extract_pipeline_debug(outcome, schema_info=q.get("schema_info", {}))
 
     print(json.dumps(report, indent=2, ensure_ascii=False, default=str))
 
